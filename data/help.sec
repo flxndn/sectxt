@@ -1,0 +1,28 @@
+* sectxt.py
+	Sections converter
+	
+	* Usage
+		sectxt.py -h
+		
+		sectxt.py (-f pattern) -[tmxw] file
+	* Description
+		Read file.sec and outputs the file converted.
+	* Options
+		* -f, --filter pattern
+			Only shows the section whith the title that match pattern.
+		* -h, --help
+			Show this help.
+		* -t, --txt
+			Convert file.sec to text format (normalized).
+		* -m, --html
+			Convert file.sec to htMl format.
+
+			html means the content of the body, only.
+		* -x, --xml
+			Convert file.sec to XML format.
+		* -d, --dokuwiki
+			Convert file.sec to [[http://www.dokuwiki.org/syntax|DokuWiki format]].
+		* -w, --wikipedia
+			Convert file.sec to [[http://en.wikipedia.org/wiki/Wikipedia:Cheatsheet|Wikipedia format]].
+
+	

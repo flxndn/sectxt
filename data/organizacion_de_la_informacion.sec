@@ -1,0 +1,34 @@
+* Organización de la información
+	* Resumen
+		En este documento veremos los métodos que se han creado para
+		la organización de la información y la herramienta sectxt como 
+		formato adecuado para esta organización.
+	* Datos brutos
+		Cuando tenemos grandes cantidades de datos, la lectura secuencial
+		de estos es lenta, tanto si lo hacemos de forma manual como si lo
+		hace un ordenador.
+
+	* Agrupación mononivel
+		La primera solución al problema del acceso a grandes cantidades de datos
+		consiste en crear unas agrupaciones de datos y darles un título.
+
+		Esta fue la solución de los escritores que inventaron los capítulos de 
+		los libros o las carpetas de los AS400.
+
+		* Capas en Adobe Photoshop
+			Hace ya unos años Adobe implementó el concepto de capa en el
+			programa Adobe Photoshop. Y los diseñadores empezaron a utilizar
+			muchas capas, de forma que cuando había que cambiar alguna 
+			característica de varias de ellas como subirlas o cambiar el 
+			grado de transparencia, había que hacer múltiples operaciones.
+		
+			En una versión posterior se incluyeron carpetas donde meter capas,
+			de forma que se podían atenuar o lleva al fondo varias capas a la
+			vez actuando sobre la carpeta que contuviera estas capas.
+			
+			Pero no se podían poder crear carpetas dentro de otras carpetas, 
+			eran carpetas mononivel.
+
+	* Agrupación limitada
+
+	* Agrupación ilimitada

@@ -1,0 +1,42 @@
+* To-do list
+	* To do
+		- Full translation to English 
+		- Add input text 
+		- License, author, how to download files.
+		* Latex
+			- all image modes
+			- first paragraphs as abstract
+
+	* Done
+		* Version 0.1
+			- Read *.sec files
+		* 2010-01-31 02:23
+			* Other output formats
+				- Escaped HTML
+
+				- txt (sec)
+
+				- xml
+
+				- DokuWiki
+
+				- Wikipedia
+		* 2010-01-31 03:06
+			- The selected format is now persistent.
+
+		* 2010-02-03 12:48
+			* toXML
+				Now with xml version.
+
+			* toHTML
+				Paragraphs, subsections and sections now between divs of class
+				paragraphs, subsections and section.
+
+			* Syntax
+				Now the elements of the numbered lists begin with '#'.
+
+				Now the elements of the unordered lists begin with '-'.
+
+		* 2010-02-05 13:55
+			- The editable sec in html have a bug related with extra return (or line feed, who knows?).
+

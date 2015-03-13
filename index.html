@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es">
+	<head>
+		<link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+		<script type="text/javascript">
+			function send( format )
+			{
+				inputTextFormat = document.getElementById('inputTextFormat')
+				inputTextFormat.value = format
+				inputTextFormat.form.submit()
+			}
+		</script>
+	</head>
+	<body>
+		<div id="container">
+			<div id="header">
+				<h1>sectxt</h1>
+				<p id="abstract">Light tagging for structured information<small>ß</small></p>
+			</div>
+			<div id="aux">
+				<div class="block" id="description">
+					<h2>Files</h2>
+					<ul>
+						{% for f in files %}
+							<li><a href="/{{format}}/{{f}}">{{f}}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+				<div class="block" id="downloads">
+					<h2>Downloads</h2>
+					<p>All the files of this project can be download from 
+						<a href="http://sourceforge.net/projects/sectxt">http://sourceforge.net/projects/sectxt</a>.
+					</p>
+				</div>
+				<div class="block" id="contacto">
+					<p>Bugs, comments, wishes: felix.anadon (at) gmail (dot) com.</p>
+				</div>
+			</div><!--aux-->
+			<div id="content">
+				<pre>/{{format}}/{{file}}</pre>
+				<div id="navcontainer">
+					<ul id="navlist">
+						{% if post %}
+							{% for f in formats %}
+								{% ifequal f format %}
+									<li id="active"><a href="#" onclick="send('{{f}}')" id="current">{{f}}</a></li>
+								{% else %}
+									<li><a href="#" onclick="send('{{f}}')">{{f}}</a></li>
+								{% endifequal %}
+							{% endfor %}
+						{% else %}
+							{% for f in formats %}
+								{% ifequal f format %}
+									<li id="active"><a href="/{{f}}/{{file}}" id="current">{{f}}</a></li>
+								{% else %}
+									<li><a href="/{{f}}/{{file}}">{{f}}</a></li>
+								{% endifequal %}
+							{% endfor %}
+						{% endif %}
+					</ul>
+				</div>
+				{% ifequal escape 'edit' %}
+					<form action="/edit" method="POST">
+						este es el escapado
+						<textarea id="input" name="input" cols="80" rows="30"
+						>{{ output_html|escape }}</textarea>
+						<input name="submitButton" type="submit" value="convert" />
+						<input id="inputTextFormat" type="text" name="format" value="{{format}}" />
+					</form>
+  	
+
+					<script type="text/javascript">
+						var input = document.getElementById("input");
+						if(input.addEventListener ) {
+							input.addEventListener('keydown',this.checkTab,false);
+						} else if(el.attachEvent ) {
+							input.attachEvent('onkeydown',this.checkTab); /* damn IE hack */
+						}
+
+						/*
+						function keyHandler(e) {
+							var TABKEY = 9;
+							if(e.keyCode == TABKEY) {
+								this.value += "    ";
+								if(e.preventDefault) {
+									e.preventDefault();
+								}
+								return false;
+							}
+						}
+						*/
+
+						var tab="	"
+						function checkTab(evt) {
+							var t = evt.target;
+							var ss = t.selectionStart;
+							var se = t.selectionEnd;
+						
+							// Tab key - insert tab expansion
+							if (evt.keyCode == 9) {
+								evt.preventDefault();
+									
+								// Special case of multi line selection
+								if (ss != se && t.value.slice(ss,se).indexOf("\n") != -1) {
+									// In case selection was not of entire lines (e.g. selection begins in the middle of a line)
+									// we ought to tab at the beginning as well as at the start of every following line.
+									var pre = t.value.slice(0,ss);
+									var sel = t.value.slice(ss,se).replace(/\n/g,"\n"+tab);
+									var post = t.value.slice(se,t.value.length);
+									t.value = pre.concat(tab).concat(sel).concat(post);
+										
+									t.selectionStart = ss + tab.length;
+									t.selectionEnd = se + tab.length;
+								}
+									
+								// "Normal" case (no selection or selection on one line only)
+								else {
+									t.value = t.value.slice(0,ss).concat(tab).concat(t.value.slice(ss,t.value.length));
+									if (ss == se) {
+										t.selectionStart = t.selectionEnd = ss + tab.length;
+									}
+									else {
+										t.selectionStart = ss + tab.length;
+										t.selectionEnd = se + tab.length;
+									}
+								}
+							}
+						}
+
+					</script>
+
+				{% else %}
+					{% ifequal escape 'no' %}
+						{% if output_html %}
+							{{ output_html }}
+						{% endif %}
+					{% else %}
+						<pre>{% if output_html %}{{ output_html|escape }}{% endif %}</pre>
+					{% endifequal %}
+					<div style="background:#f80;visibility:hidden">
+					<form action="/edit" method="POST">
+						<textarea id="inputAux" name="input" cols="80" rows="30"
+						>{{ input }}</textarea>
+						<input name="submitButton" type="submit" value="convert" />
+						<input id="inputTextFormat" type="text" name="format" value="{{format}}" />
+					</form>
+					</div>
+				{% endifequal %}
+
+			</div>
+			<div id="foot">
+				<p>Author: Félix Anadón Trigo </a>, 2010</p>
+			</div>
+
+		</div><!--container-->
+	</body>
+</html>
+
