@@ -1,6 +1,6 @@
-src=data/README.sec data/SYNTAX.sec data/todo.sec
+src=README.sec data/SYNTAX.sec data/todo.sec
 
-all: dirs data/help.sec
+all: README.md
 
 dirs:
 	-mkdir tmp data
@@ -17,7 +17,6 @@ aspell:
 	do \
 		aspell --lang=en -c $$i; \
 	done
-	aspell --lang=en -H -c index.html
 
 clean:
 	-rm tmp/* *.pyc
@@ -28,5 +27,5 @@ mrproper: clean
 install:
 	ln -s $(pwd)/sectxt.py ~/bin
 
-README.md: data/README.sec
+README.md: README.sec
 	sectxt.py --markdown $^ > $@

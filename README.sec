@@ -8,3 +8,8 @@
 			Converts sec files into HTML, XML, plain text, Dokuwiki or LaTeX Article format.
 
 			Use 'sectxt.py -h' for help.
+
+	* Documents 
+		- [[data/help.sec Help]]
+		- [[data/SYNTAX.sec Syntax]]
+		- [[data/todo.sec ToDo]]

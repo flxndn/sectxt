@@ -12,4 +12,11 @@ Converts sec files into HTML, XML, plain text, Dokuwiki or LaTeX Article format.
 Use 'sectxt.py -h' for help.
 
 
+## Documents 
+*  [Help](data/help.sec)
+
+*  [Syntax](data/SYNTAX.sec)
+
+*  [ToDo](data/todo.sec)
+
 

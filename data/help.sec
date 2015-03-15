@@ -4,14 +4,10 @@
 	* Usage
 		sectxt.py -h
 		
-		sectxt.py (-f pattern) -[tmxw] file
+		sectxt.py  -<format> [options] file
 	* Description
 		Read file.sec and outputs the file converted.
-	* Options
-		* -f, --filter pattern
-			Only shows the section whith the title that match pattern.
-		* -h, --help
-			Show this help.
+	* Formats
 		* -t, --txt
 			Convert file.sec to text format (normalized).
 		* -m, --html
@@ -24,5 +20,22 @@
 			Convert file.sec to [[http://www.dokuwiki.org/syntax|DokuWiki format]].
 		* -w, --wikipedia
 			Convert file.sec to [[http://en.wikipedia.org/wiki/Wikipedia:Cheatsheet|Wikipedia format]].
+		* -a, --article
+			Convert file.sec to [[http://en.wikipedia.org/wiki/DocBook|docbook]] article.
+		* -l, --latex
+			Convert file.sec to the content of a latex article.
+		* -k, --markdown
+			Convert file.sec to [[https://en.wikipedia.org/wiki/Markdown Markdown format]].
+	* Options
+		* -f, --filter pattern
+			Only shows the section whith the title that match pattern.
+		* -h, --help
+			Show this help.
+		* -i, --toc
+			Only with outuput of html type.
 
+			Include a table of contents of the subsections between the title 
+			and the texts.
+		* -n, --no_extra_divs
+			Do not include extra divs for paragraphs, tocs, etc.
 	

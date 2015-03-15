@@ -32,7 +32,7 @@
 
 				You can write a paragraph using many lines. 
 				
-				To make a new paragrap, write a blank line.
+				To make a new paragraph, write a blank line.
 
 				The paragraphs are separated with blank lines.
 			* List elements
@@ -85,7 +85,7 @@
 			* Images
 				You can include external and internal images with curly brackets.	
 
-				You can add optional elements as title and the url for a bigger image.
+				You can add optional elements as title and the URL for a bigger image.
 
 				Examples:
 
