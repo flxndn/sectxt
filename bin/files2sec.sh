@@ -7,32 +7,31 @@ help() {
 #-------------------------------------------------------------------------------
 	cat <<HELP
 * $PROGRAM_NAME
-	* Uso
-		$PROGRAM_NAME [ -t titulo ] [ -n ] fichero1 [fichero2 ...]
+	* Usage
+		$PROGRAM_NAME [ -t title ] [ -n ] file1 [file2 ...]
 		$PROGRAM_NAME -h
 
-	* Descripción
-		Crea un fichero sec con los apartados fichero1 etc.
+	* Description
+		Make a new sec file with the sections of the file1, file2, etc.
 
-		Ejemplo:
+		Exampl:
 		> * $PROGRAM_NAME
-		>	* fichero1
-		>		<contenido del fichero1>
-		>	* fichero2
-		>		<contenido del fichero1>
+		>	* file1
+		>		<contents of file1>
+		>	* file2
+		>		<contents of file1>
 		>	...
 
-	* Opciones
-		* -t titulo
-			Pone titulo en lugar de $PROGRAM_NAME como el título principal.
+	* Options
+		* -t title
+			Use title no $PROGRAM_NAME as de main title.
 
 		* -n
-			No pone como subtítulos los nombres de los ficheros.
+			Do not use filenames as section titles.
 			
-			Sirve para cuando unimos ficheros que ya tienen el formato
-			*.sec.
+			Usefull for joning sec files.
 
-	* Autor
+	* Author
 		Félix Anadón Trigo 
 HELP
 }
@@ -42,23 +41,23 @@ if [ "$1" == "-h" ]; then
 	exit 0
 fi
 
-local titulo=$PROGRAM_NAME 
-local incluir_fichero=1
+local title=$PROGRAM_NAME 
+local include_file=1
 
 while echo "$1" | grep -q '^-'; do
 	if [ $1 == "-t" ]; then
-		titulo=$2
+		title=$2
 		shift;shift;
 	fi
 	if [ $1 == "-n" ]; then
-		incluir_fichero=0
+		include_file=0
 		shift;
 	fi
 done
 
-echo "* $titulo"
+echo "* $title"
 for i in $*; do
-	if [ "$incluir_fichero" == "1" ]; then
+	if [ "$include_file" == "1" ]; then
 		echo "	* $i"
 		cat $i | sed "s/^/\t\t/"
 	else

@@ -1,4 +1,7 @@
 # Read me first
+(You can read [this document in SEC version](README.sec))
+
+
 ## What is SEC?
 SEC is a file format for textual data similar to 
 [reStructuredText](https://en.wikipedia.org/wiki/ReStructuredText) 
