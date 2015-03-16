@@ -1,16 +1,37 @@
 # Read me first
 ## What is SEC?
-It's an easy way to organize information in a full 
-hierarchy way.
+SEC is a file format for textual data similar to 
+[reStructuredText](https://en.wikipedia.org/wiki/ReStructuredText) 
+or [Markdown](https://en.wikipedia.org/wiki/Markdown).
+
+
+The main goal of this format is that the section/subsection order is 
+based in indentation level. In the same way as for example 
+[Python](http://www.diveintopython.net/getting_to_know_python/indenting_code.html).  
 
 
 ## Tools
 ### sectxt.py
-Converts sec files into HTML, XML, plain text, Dokuwiki or LaTeX Article format.
+Converts sec files into HTML, XML, plain text, Dokuwiki, LaTeX Article format or Markdown.
 
 
 Use 'sectxt.py -h' for help.
 
+
+### Makefile
+Not really very useful
+
+
+### vim/syntax/sec.vim
+Syntax file for vim editor
+
+
+## Installation
+Download sectxt.py and execute it.
+
+
+## Dependenciea
+*  Python 2.7
 
 ## Documents 
 *  [Help](data/help.sec)

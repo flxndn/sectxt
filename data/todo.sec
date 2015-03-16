@@ -12,14 +12,10 @@
 			- Read *.sec files
 		* 2010-01-31 02:23
 			* Other output formats
-				- Escaped HTML
-
-				- txt (sec)
-
-				- xml
-
-				- DokuWiki
-
+				- Escaped HTML 
+				- txt (sec) 
+				- xml 
+				- DokuWiki 
 				- Wikipedia
 		* 2010-01-31 03:06
 			- The selected format is now persistent.
@@ -39,4 +35,6 @@
 
 		* 2010-02-05 13:55
 			- The editable sec in html have a bug related with extra return (or line feed, who knows?).
+		* 2015-03-01
+			- Simple Markdown support
 
