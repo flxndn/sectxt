@@ -33,7 +33,7 @@ Syntax file for vim editor
 Download sectxt.py and execute it.
 
 
-## Dependenciea
+## Dependencies
 *  Python 2.7
 
 ## Documents 
