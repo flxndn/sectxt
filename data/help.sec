@@ -17,11 +17,11 @@
 		* -x, --xml
 			Convert file.sec to XML format.
 		* -d, --dokuwiki
-			Convert file.sec to [[http://www.dokuwiki.org/syntax|DokuWiki format]].
+			Convert file.sec to [[http://www.dokuwiki.org/syntax DokuWiki format]].
 		* -w, --wikipedia
-			Convert file.sec to [[http://en.wikipedia.org/wiki/Wikipedia:Cheatsheet|Wikipedia format]].
+			Convert file.sec to [[http://en.wikipedia.org/wiki/Wikipedia:Cheatsheet Wikipedia format]].
 		* -a, --article
-			Convert file.sec to [[http://en.wikipedia.org/wiki/DocBook|docbook]] article.
+			Convert file.sec to [[http://en.wikipedia.org/wiki/DocBook docbook]] article.
 		* -l, --latex
 			Convert file.sec to the content of a latex article.
 		* -k, --markdown
