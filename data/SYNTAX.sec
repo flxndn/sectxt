@@ -76,11 +76,11 @@
 			
 			* Hyperlinks
 				Hyperlinks are an URL and a title enclosed into double square
-				brackets, with an pipe between the URL and the title.
+				brackets, with an space between the URL and the title.
 
 				Example:
 
-				>Search with [[http://www.google.es|Google]].
+				>Search with [[http://www.google.es Google]].
 
 			* Images
 				You can include external and internal images with curly brackets.	
