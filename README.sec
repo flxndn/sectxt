@@ -8,6 +8,8 @@
 		The main goal of this format is that the section/subsection order is 
 		based in indentation level. In the same way as for example 
 		[[http://www.diveintopython.net/getting_to_know_python/indenting_code.html Python]].  
+
+		It's really easy to edit SEC files with your favorite text editor or with string editor like [[https://www.gnu.org/software/sed/ sed]].
 	* Tools
 		* sectxt.py
 			Converts sec files into HTML, XML, plain text, Dokuwiki, LaTeX Article format or Markdown.

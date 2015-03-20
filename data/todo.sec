@@ -1,8 +1,8 @@
 * To-do list
 	* To do
-		- Full translation to English 
+		- Bold and italic text
+		- Tests
 		- Add input text 
-		- License, author, how to download files.
 		* Latex
 			- all image modes
 			- first paragraphs as abstract
@@ -37,4 +37,7 @@
 			- The editable sec in html have a bug related with extra return (or line feed, who knows?).
 		* 2015-03-01
 			- Simple Markdown support
+		* 2015-03-17
+			- Full translation to English 
+
 
