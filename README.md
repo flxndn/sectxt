@@ -12,25 +12,34 @@ based in indentation level. In the same way as for example
 
 It's really easy to edit SEC files with your favorite text editor or with string editor like [sed](https://www.gnu.org/software/sed/).
 
+
 ## Tools
 ### sectxt.py
 Converts sec files into HTML, XML, plain text, Dokuwiki, LaTeX Article format or Markdown.
 
 Use 'sectxt.py -h' for help.
 
+
 ### Makefile
 Not really very useful
+
 
 ### vim/syntax/sec.vim
 Syntax file for vim editor
 
+
+
 ## Installation
 Download sectxt.py and execute it.
 
+
 ## Dependencies
 *  Python 2.7
+
 ## Documents 
 *  [Help](data/help.sec)
 *  [Syntax](data/SYNTAX.sec)
 *  [ToDo](data/todo.sec)
+
+
 

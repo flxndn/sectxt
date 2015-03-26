@@ -811,7 +811,7 @@ class Section:
 
 		equals = "#" * level
 		aux = "%s %s\n" % (equals,  self.title.toMarkdown())
-		aux+= paragraphs + subsections
+		aux+= paragraphs + subsections + "\n"
 		return aux
 	
 	def toWikipedia(self, level = 1):
