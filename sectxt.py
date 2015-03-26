@@ -398,7 +398,7 @@ class ListElement(NestedLine):
 		return "\t\t<li>"+self.elements.toHTML()+"</li>\n"
 
 	def toMarkdown(self):
-		# FIXME: it olso works for unordered lists
+		# FIXME: it also works for unordered lists
 		return "* "+ self.elements.toMarkdown()
 
 	def toXML(self):
@@ -803,7 +803,7 @@ class Section:
 	def toMarkdown(self, level = 1):
 		paragraphs=""
 		for i in self.paragraphs:
-			paragraphs +=  i.toMarkdown() + "\n\n"
+			paragraphs +=  i.toMarkdown() + "\n"
 
 		subsections=""
 		for i in self.subsections:
