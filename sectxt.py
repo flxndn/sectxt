@@ -139,8 +139,7 @@ class ImageBig(ImageTitled):
 		return "{{%s|%s|%s}}" % (self.url, self.title, self.urlBig)
 
 	def toHTML(self):
-		return """
-		<a href="%s"><img src="%s" alt="%s" title="%s"/></a>""" % (self.urlBig, self.url, self.title, self.title )
+		return """<a href="%s"><img src="%s" alt="%s" title="%s"/></a>""" % (self.urlBig, self.url, self.title, self.title )
 
 	def toMarkdown(self):
 		#FIXME: it doesn't use the urlBig
