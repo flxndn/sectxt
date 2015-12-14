@@ -1,0 +1,57 @@
+body {
+	padding:0 10%;
+	font-family: Rubik, sans-serif;
+}
+a {
+	text-decoration: none;
+	color: #004;
+}
+a:hover {
+	text-decoration: underline;
+	color: #00f;
+}
+h1,h2,h3,h4,h5,h6 {
+	margin-bottom: 0.5em;
+}
+h1 {
+	font-size: 48pt;
+	font-weight: 400;
+	text-align: center;
+}
+h2 {
+	font-size: 48pt;
+	margin-top: 2em;
+}
+h3 {font-size:36pt}
+h4 {font-size:24pt}
+h5 {font-size:18pt}
+h6 {font-size:12pt}
+
+ul.toc {
+	font-size: 70%;
+	list-style-type: square;
+	border: 1px solid #000;
+	background: #ccc;
+	padding: 0.5em 2em;
+}
+.toc li {
+}
+p {
+	font-size: 14pt;
+	line-height: 135%;
+	max-width: 40em;
+}
+toc.li {
+	font-style: italic;
+}
+dl { }
+dt { 
+	font-weight: bold;
+}
+dd { 
+	font-weight: normal;
+ }
+/*
+.libro { font-style:italic; }
+.apellidos { font-variant:small-caps; }
+*/
