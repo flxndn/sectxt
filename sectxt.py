@@ -772,14 +772,24 @@ class Section:
 		else: 
 			aux = ""
 
+		aux+= "<h%d><a name=\"%s\"></a>%s</h%d>\n" % (level, re.sub('"', '_', path), self.title.toHTML(), level)
 		if toc:
-			aux+= "<h%d><a name=\"%s\"></a>%s</h%d>\n" % (level, re.sub('"', '_', path), self.title.toHTML(), level)
 			aux+= self.toc(path, extra_divs)
-		else:
-			aux+= "<h%d>%s</h%d>\n" % (level, self.title.toHTML(), level)
+
 		aux+= paragraphs + subsections
 		if extra_divs:
 			aux+= "</div><!--class=section-->\n"
+		return aux
+
+	def toHTMLTOC(self, level = 1, path=''):
+		path=path+"/"+str(self.title.toHTML())
+		aux="<a href=\"#"+path+"\">"+self.title.toHTML()+"</a>";
+		subsections=""
+		for i in self.subsections:
+			subsections += "<li>"+i.toHTMLTOC( level + 1 , path)+"</li>"
+
+		if subsections != "":
+			aux+="<ul>" + subsections + "</ul>";
 		return aux
 
 	def toDokuWiki(self, level = 5):
@@ -1029,9 +1039,9 @@ def usage():
 		* -t, --txt
 			Convert file.sec to text format (normalized).
 		* -m, --html
-			Convert file.sec to htMl format.
+			Convert file.sec to html format.
 
-			html means the content of the body, only.
+			This html is not a full html page.
 		* -x, --xml
 			Convert file.sec to XML format.
 		* -d, --dokuwiki
@@ -1044,23 +1054,26 @@ def usage():
 			Convert file.sec to the content of a latex article.
 		* -k, --markdown
 			Convert file.sec to [[https://en.wikipedia.org/wiki/Markdown Markdown format]].
+		* -o, --html_toc
+			Converts file.sec in an html nested list of links to the titles 
+			of the sections of the document.
 	* Options
 		* -f, --filter pattern
 			Only shows the section whith the title that match pattern.
 		* -h, --help
 			Show this help.
 		* -i, --toc
-			Only with outuput of html type.
-
 			Include a table of contents of the subsections between the title 
 			and the texts.
+
+			Only works with selected type is html.
 		* -n, --no_extra_divs
 			Do not include extra divs for paragraphs, tocs, etc.
 	"""
 
 def main():
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "f:htkmxdwialn", ["filter=", "help","txt","html","markdown", "xml","dokuwiki","wikipedia","toc", "article", "latex", "no_extra_divs"])
+		opts, args = getopt.getopt(sys.argv[1:], "f:htkmxdwialno", ["filter=", "help","txt","html","html_toc", "markdown", "xml","dokuwiki","wikipedia","toc", "article", "latex", "no_extra_divs"])
 	except getopt.GetoptError, err:
 		# print help information and exit:
 		print str(err) # will print something like "option -a not recognized"
@@ -1083,6 +1096,8 @@ def main():
 				format = "sec"
 			elif o in ("-m", "--html"):
 				format = "html"
+			elif o in ("-o", "--html_toc"):
+				format = "html_toc"
 			elif o in ("-k", "--markdown"):
 				format = "markdown"
 			elif o in ("-x", "--xml"):
@@ -1114,6 +1129,8 @@ def main():
 		print sec.toString()
 	elif format == "html":
 		print sec.toHTML( toc=toc, extra_divs=extra_divs )
+	elif format == "html_toc":
+		print "<div id=\"full_toc\">"+sec.toHTMLTOC()+"</div>"
 	elif format == "markdown":
 		print sec.toMarkdown()
 	elif format == "xml":
