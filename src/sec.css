@@ -1,5 +1,5 @@
 body {
-	padding:0 10%;
+	padding:0 10% 0 0;
 	font-family: Rubik, sans-serif;
 }
 a {
@@ -51,7 +51,24 @@ dt {
 dd { 
 	font-weight: normal;
  }
-/*
-.libro { font-style:italic; }
-.apellidos { font-variant:small-caps; }
-*/
+
+#document{
+	float:left;
+	width: 78%;
+	padding-left: 1em;
+}
+
+#full_toc {
+	float:left;
+	width:20%;
+	background: #444;
+	color: #fff;
+}
+#full_toc a {
+	color: #fff;
+}
+#full_toc ul {
+	font-size:8pt;
+	padding-left: 1em;
+}
+
