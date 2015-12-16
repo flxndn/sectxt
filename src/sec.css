@@ -54,15 +54,21 @@ dd {
 
 #document{
 	float:left;
-	width: 78%;
-	padding-left: 1em;
+	padding-left: 3em;
+	margin-left: 21%;
 }
 
 #full_toc {
+	position: fixed;
+	padding: 1em;
+	top: 0;
+	left: 0;
 	float:left;
 	width:20%;
 	background: #444;
 	color: #fff;
+	height: 100%;
+	overflow: auto;
 }
 #full_toc a {
 	color: #fff;
