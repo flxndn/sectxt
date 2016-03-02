@@ -113,6 +113,20 @@ Can contain:
 Plain text is..., well..., you know...
 
 
+#### Emphasized text
+One or more words can be emphasized in the same line using 2 
+apostrophe-quotes in the begin and in the end of the text:
+
+Example: I like Poe's poem *The Raven*
+
+
+#### Strong text
+One or more words can be marked as strong in the same line 
+using 3 apostrophe-quotes in the begin and in the end of the text:
+
+Example: I like Poe's poem **The Raven**
+
+
 #### Hyperlinks
 Hyperlinks are an URL and a title enclosed into double square
 brackets, with an space between the URL and the title.

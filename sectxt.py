@@ -24,6 +24,10 @@ class NoParsed(Element):
 		return [self]
 	def parseImages(self):
 		return [self]
+	def parseStrongtext(self):
+		return [self]
+	def parseEmphasized(self):
+		return [self]
 
 class Hyperlink(NoParsed):
 	"""Hyperlink.
@@ -56,6 +60,67 @@ class Hyperlink(NoParsed):
 	def toLatex(self):
 		return self.title+"\\footnote{"+self.url+"}"
 		
+class Strongtext(NoParsed):
+	"""Strongtext.
+		text """
+	def __init__(self,text):
+		self.text = text
+
+	def toString(self):
+		return "'''%s'''" % (self.text)
+
+	def toHTML(self):
+		return "<strong>%s</strong>" % (self.text)
+
+	def toMarkdown(self):
+		return  "**%s**" % (self.text)
+
+	def toXML(self):
+		return self.toHTML()
+
+	def toDokuWiki(self):
+		return  "**%s**" % (self.text)
+
+	def toWikipedia(self):
+		return "'''%s'''" % (self.text)
+
+	def toArticle(self):
+		return "<emphasis>%s</emphasis>" % (self.text)
+
+	def toLatex(self):
+		#TODO
+		return self.text
+
+class Emphasized(NoParsed):
+	"""Emphasized.
+		text """
+	def __init__(self,text):
+		self.text = text
+
+	def toString(self):
+		return "''%s''" % (self.text)
+
+	def toHTML(self):
+		return "<em>%s</em>" % (self.text)
+
+	def toMarkdown(self):
+		return  "*%s*" % (self.text)
+
+	def toXML(self):
+		return self.toHTML()
+
+	def toDokuWiki(self):
+		return  "%s" % (self.text)
+
+	def toWikipedia(self):
+		return "''%s''" % (self.text)
+
+	def toArticle(self):
+		return "<emphasis>%s</emphasis>" % (self.text)
+
+	def toLatex(self):
+		#TODO
+		return self.text
 
 class Image(NoParsed):
 	def __init__(self,url):
@@ -202,6 +267,30 @@ class PlainText(Element):
 			counter+=1
 		return elements
 
+	def parseStrongtext(self):
+		texts = re.split("'''",self.text)
+		counter = 0
+		elements = []
+		for text in texts:
+			if counter % 2 == 0:
+				elements.append( PlainText(text) )
+			else:
+				elements.append( Strongtext(text) )
+			counter+=1
+		return elements
+
+	def parseEmphasized(self):
+		texts = re.split("''",self.text)
+		counter = 0
+		elements = []
+		for text in texts:
+			if counter % 2 == 0:
+				elements.append( PlainText(text) )
+			else:
+				elements.append( Emphasized(text) )
+			counter+=1
+		return elements
+
 	def parseImages(self):
 		texts = re.split("\{\{|\}\}",self.text)
 		counter = 0
@@ -298,11 +387,25 @@ class Line:
 		self.parse(text)
 
 	def parse(self,txt):
-		parsedLinks = PlainText(txt).parseHyperlinks() 
-		parsedImages = []
-		for element in parsedLinks:
-			parsedImages.extend( element.parseImages() )
-		self.elements.extend( parsedImages )
+		# Strongtext
+		parsed = PlainText(txt).parseStrongtext()
+		# Emphasidedtext
+		aux=[]
+		for element in parsed:
+			aux.extend( element.parseEmphasized() )
+		parsed=aux
+		# Hyperlink
+		aux=[]
+		for element in parsed:
+			aux.extend( element.parseHyperlinks() )
+		parsed=aux
+		# Images
+		aux=[]
+		for element in parsed:
+			aux.extend( element.parseImages() )
+		parsed=aux
+		#
+		self.elements.extend( parsed )
 
 	def toString(self):
 		return self.elements.toString()
@@ -385,8 +488,16 @@ class Paragraph(Line):
 	def type():
 		return "p"
 
+	@staticmethod
+	def wikipediaReturn():
+		return "\n\n"
+
 class NestedLine(Line):
 	"""Abstract Line for lines that must be enclosed between tags."""
+
+	@staticmethod
+	def wikipediaReturn():
+		return "\n"
 
 class ListElement(NestedLine):
 	"""Line suitable for list elements."""
@@ -407,7 +518,7 @@ class ListElement(NestedLine):
 		return "* " + self.elements.toDokuWiki()
 
 	def toWikipedia(self):
-		return "* " + self.elements.toWikipedia()
+		return "* " + "INI" + self.elements.toWikipedia() + "FIN"
 
 	def toArticle(self):
 		return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>"
@@ -831,7 +942,7 @@ class Section:
 			sys.exit(2)
 		paragraphs=""
 		for i in self.paragraphs:
-			paragraphs +=  i.toWikipedia() + "\n\n"
+			paragraphs +=  i.toWikipedia() + i.wikipediaReturn()
 
 		subsections=""
 		for i in self.subsections:

@@ -5,6 +5,7 @@ FORMATS=["html"]="html" \
 		["markdown"]="md" \
 		["xml"]="xml" \
 		["dokuwiki"]="wiki" \
+		["wikipedia"]="wikipedia" \
 		["article"]="dbk" \
 		["latex"]="tex"
 

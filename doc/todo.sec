@@ -1,8 +1,7 @@
 * To-do list
 	* To do
-		- Bold and italic text
-		- Tests
 		- Add input text 
+		- Mix bold and italic text, and hyperlinks and images
 		* Latex
 			- all image modes
 			- first paragraphs as abstract
@@ -39,5 +38,9 @@
 			- Simple Markdown support
 		* 2015-03-17
 			- Full translation to English 
+		* 2016-03-02
+			- Tests
+			- Bold and italic text
+
 
 
