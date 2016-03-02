@@ -104,23 +104,20 @@ Plain text is..., well..., you know...
 One or more words can be emphasized in the same line using 2 
 apostrophe-quotes in the begin and in the end of the text:
 
-Example: I like Poe's poem The Raven
+Example: I like Poe's poem The Raven.
 
 \subsubsection{Strong text}
 One or more words can be marked as strong in the same line 
 using 3 apostrophe-quotes in the begin and in the end of the text:
 
-Example: I like Poe's poem The Raven
+Example: I like Poe's poem The Raven.
 
 \subsubsection{Hyperlinks}
 Hyperlinks are an URL and a title enclosed into double square
 brackets, with an space between the URL and the title.
 
-Example:
+Example: Competitors\footnote{https://en.wikipedia.org/wiki/Category:Markup_languages} of sectxt.
 
-\begin{verbatim}
-Search with [[http://www.google.es Google]].
-\end{verbatim}
 \subsubsection{Images}
 You can include external and internal images with curly brackets.	
 
@@ -128,35 +125,33 @@ You can add optional elements as title and the URL for a bigger image.
 
 Examples: 
 
-\begin{itemize}
-\item  \begin{figure}[ht!]
+\begin{description}
+\item[ Image only]
+ \begin{figure}[ht!]
 		\centering
-		\includegraphics[width=90mm]{http://sectxtweb.appspot.com/images/python_big.jpg}
-		\caption{The python}
-		\label{overflow}
-		\end{figure}
-		 
-\item  \begin{figure}[ht!]
-		\centering
-		\includegraphics[width=90mm]{/images/python_big.jpg}
-		\caption{The python with bigger image}
-		\label{overflow}
-		\end{figure}
-		 
-\item  \begin{figure}[ht!]
-		\centering
-		\includegraphics[width=90mm]{/images/python.jpg}
-		\caption{The python}
-		\label{overflow}
-		\end{figure}
-		 
-\item  \begin{figure}[ht!]
-		\centering
-		\includegraphics[width=90mm]{/images/python.jpg}
+		\includegraphics[width=90mm]{http://i.imgur.com/e0bfiLv.jpg}
 		\label{overflow}
 		\end{figure}
 		
-\end{itemize}
+\item[ Image with caption ]
+ \begin{figure}[ht!]
+		\centering
+		\includegraphics[width=90mm]{http://i.imgur.com/e0bfiLv.jpg}
+		\caption{The python}
+		\label{overflow}
+		\end{figure}
+		 
+ place cursor over image
+\item[ Image with caption and link to bigger image ]
+ \begin{figure}[ht!]
+		\centering
+		\includegraphics[width=90mm]{http://i.imgur.com/MEiplEn.jpg}
+		\caption{The python}
+		\label{overflow}
+		\end{figure}
+		 
+ click in image
+\end{description}
 \subsection{Subsections}
 The subsections are sections. Do you know what is recursion?
 

@@ -1,174 +1,155 @@
 = Syntax of sec files =
 Version 1.0
-2parr2
+
 
 == Files ==
 A sec file is a plain text file.
-2parr2
+
 
 == Format ==
 The format of the document is done with tabs, asterisks plus space and
 white lines.
-2parr2
+
 
 The indentation means importance. The more indentation the less 
 important in the document structure.
-2parr2
+
 
 The titles are formatted with one asterisks and one space.
-2parr2
+
 
 == Structure ==
 === File ===
 A *.sec file is a Section.
-2parr2
+
 
 === Section ===
 A section contains a title, zero or more paragraphs and zero or 
 more subsections.
-2parr2
+
 
 === Title ===
 A text string with no carriage return allowed.
-2parr2
+
 
 === Paragraph ===
 The texts of the section.
-2parr2
+
 
 The paragraphs can be:
-2parr2
+
 
 ==== Normal paragraphs ====
 The first non-tab character can be any char except 
 asterisk (*), dash (-), greater-than (>) or number sign (#).
-2parr2
+
 
 You can write a paragraph using many lines. 
-2parr2
+
 
 To make a new paragraph, write a blank line.
-2parr2
+
 
 The paragraphs are separated with blank lines.
-2parr2
+
 
 ==== List elements ====
 The first non-tab character is a dash.
-2parr2
+
 
 Example:
-2parr2
 
-* INI EuropeFIN2parr2
 
-* INI AmericaFIN2parr2
-
-* INI AsiaFIN2parr2
-
+* INI EuropeFIN
+* INI AmericaFIN
+* INI AsiaFIN
 ==== Numeric list elements ====
 The first non-tab character is number sign (#).
-2parr2
+
 
 Example:
-2parr2
 
-# Python2parr2
 
-# C++2parr2
-
-# Perl2parr2
-
+# Python
+# C++
+# Perl
 ==== Literal lines ====
 The first non-tab character is a greater-than sign.
-2parr2
+
 
 Example:
-2parr2
 
->>class program:2parr2
 
->>  def run(self):2parr2
-
->>    print "Hello World"2parr2
-
->>    return 02parr2
-
+>>class program:
+>>  def run(self):
+>>    print "Hello World"
+>>    return 0
 ==== Definition lists ====
 You can do definition lists using List elements as term with the definition or definitions after two colons (::)
-2parr2
+
 
 Example:
-2parr2
 
-;  title2parr2
 
-:  Moby Dick2parr2
-
-;  Author2parr2
-
-:  Herman Melville2parr2
-
-;  Year2parr2
-
-:  18512parr2
-
-:  1926, first movie2parr2
-
+;  title
+:  Moby Dick
+;  Author
+:  Herman Melville
+;  Year
+:  1851
+:  1926, first movie
 === Titles and Paragraphs  ===
 Can contain:
-2parr2
+
 
 ==== Plain text ====
 Plain text is..., well..., you know...
-2parr2
+
 
 ==== Emphasized text ====
 One or more words can be emphasized in the same line using 2 
 apostrophe-quotes in the begin and in the end of the text:
-2parr2
 
-Example: I like Poe's poem ''The Raven''
-2parr2
+
+Example: I like Poe's poem ''The Raven''.
+
 
 ==== Strong text ====
 One or more words can be marked as strong in the same line 
 using 3 apostrophe-quotes in the begin and in the end of the text:
-2parr2
 
-Example: I like Poe's poem '''The Raven'''
-2parr2
+
+Example: I like Poe's poem '''The Raven'''.
+
 
 ==== Hyperlinks ====
 Hyperlinks are an URL and a title enclosed into double square
 brackets, with an space between the URL and the title.
-2parr2
 
-Example:
-2parr2
 
->>Search with [[http://www.google.es Google]].2parr2
+Example: [https://en.wikipedia.org/wiki/Category:Markup_languages Competitors] of sectxt.
+
 
 ==== Images ====
 You can include external and internal images with curly brackets.	
-2parr2
+
 
 You can add optional elements as title and the URL for a bigger image.
-2parr2
+
 
 Examples: 
-2parr2
 
-* INI [file:http://sectxtweb.appspot.com/images/python.jpg The python] FIN2parr2
 
-* INI [file:/images/python.jpg The python with bigger image] FIN2parr2
-
-* INI [file:/images/python.jpg The python] FIN2parr2
-
-* INI [file:/images/python.jpg]FIN2parr2
-
+;  Image only
+:  [file:http://i.imgur.com/e0bfiLv.jpg]
+;  Image with caption 
+:  [file:http://i.imgur.com/e0bfiLv.jpg The python] 
+:  place cursor over image
+;  Image with caption and link to bigger image 
+:  [file:http://i.imgur.com/e0bfiLv.jpg The python] 
+:  click in image
 === Subsections ===
 The subsections are sections. Do you know what is recursion?
-2parr2
+
 
 

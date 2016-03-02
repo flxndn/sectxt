@@ -69,29 +69,26 @@
 				One or more words can be emphasized in the same line using 2 
 				apostrophe-quotes in the begin and in the end of the text:
 				
-				Example: I like Poe's poem ''The Raven''
+				Example: I like Poe's poem ''The Raven''.
 			* Strong text
 				One or more words can be marked as strong in the same line 
 				using 3 apostrophe-quotes in the begin and in the end of the text:
 				
-				Example: I like Poe's poem '''The Raven'''
+				Example: I like Poe's poem '''The Raven'''.
 			* Hyperlinks
 				Hyperlinks are an URL and a title enclosed into double square
 				brackets, with an space between the URL and the title.
 
-				Example:
-
-				>Search with [[http://www.google.es Google]].
+				Example: [[https://en.wikipedia.org/wiki/Category:Markup_languages Competitors]] of sectxt.
 			* Images
 				You can include external and internal images with curly brackets.	
 
 				You can add optional elements as title and the URL for a bigger image.
 
 				Examples: 
-				- {{http://sectxtweb.appspot.com/images/python.jpg|The python|http://sectxtweb.appspot.com/images/python_big.jpg}} 
-				- {{/images/python.jpg|The python with bigger image|/images/python_big.jpg}} 
-				- {{/images/python.jpg|The python}} 
-				- {{/images/python.jpg}}
+				- Image only:: {{http://i.imgur.com/e0bfiLv.jpg}}
+				- Image with caption :: {{http://i.imgur.com/e0bfiLv.jpg|The python}} :: place cursor over image
+				- Image with caption and link to bigger image :: {{http://i.imgur.com/e0bfiLv.jpg|The python|http://i.imgur.com/MEiplEn.jpg}} :: click in image
 		* Subsections
 			The subsections are sections. Do you know what is recursion?
 

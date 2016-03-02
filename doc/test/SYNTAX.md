@@ -117,25 +117,21 @@ Plain text is..., well..., you know...
 One or more words can be emphasized in the same line using 2 
 apostrophe-quotes in the begin and in the end of the text:
 
-Example: I like Poe's poem *The Raven*
+Example: I like Poe's poem *The Raven*.
 
 
 #### Strong text
 One or more words can be marked as strong in the same line 
 using 3 apostrophe-quotes in the begin and in the end of the text:
 
-Example: I like Poe's poem **The Raven**
+Example: I like Poe's poem **The Raven**.
 
 
 #### Hyperlinks
 Hyperlinks are an URL and a title enclosed into double square
 brackets, with an space between the URL and the title.
 
-Example:
-
-```
-Search with [Google](http://www.google.es).
-```
+Example: [Competitors](https://en.wikipedia.org/wiki/Category:Markup_languages) of sectxt.
 
 
 #### Images
@@ -145,10 +141,22 @@ You can add optional elements as title and the URL for a bigger image.
 
 Examples: 
 
-*  ![The python](http://sectxtweb.appspot.com/images/python.jpg) 
-*  ![The python with bigger image](/images/python.jpg) 
-*  ![The python](/images/python.jpg) 
-*  ![Alternative text](/images/python.jpg)
+*  Image only
+
+*  ![Alternative text](http://i.imgur.com/e0bfiLv.jpg)
+
+*  Image with caption 
+
+*  ![The python](http://i.imgur.com/e0bfiLv.jpg) 
+
+*  place cursor over image
+
+*  Image with caption and link to bigger image 
+
+*  ![The python](http://i.imgur.com/e0bfiLv.jpg) 
+
+*  click in image
+
 
 
 ### Subsections
