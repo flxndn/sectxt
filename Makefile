@@ -1,5 +1,5 @@
 SHELL:=/bin/bash
-src:=README.sec data/SYNTAX.sec data/todo.sec
+src:=README.sec doc/SYNTAX.sec doc/todo.sec
 
 FORMATS=["html"]="html" \
 		["markdown"]="md" \
@@ -8,12 +8,12 @@ FORMATS=["html"]="html" \
 		["article"]="dbk" \
 		["latex"]="tex"
 
-all: README.md data/help.sec
+all: README.md doc/help.sec
 
 dirs:
-	-mkdir tmp data
+	-mkdir tmp doc
 
-data/help.sec: sectxt.py
+doc/help.sec: sectxt.py
 	./sectxt.py -h > $@
 	
 checkin: aspell
@@ -28,10 +28,10 @@ aspell:
 
 clean:
 	-rm tmp/* *.pyc
-	-rm data/help.sec README.md
+	-rm doc/help.sec README.md
 
 mrproper: clean
-	-rm -rf tmp data/help.sec
+	-rm -rf tmp doc/help.sec
 
 install:
 	target=~/bin/sectxt.py; \
@@ -42,8 +42,8 @@ test:
 	declare -A formats=( ${FORMATS} ); \
 	for f in $${!formats[@]}; do \
 		t=$$(tempfile); \
-		sectxt.py --$$f data/SYNTAX.sec > $$t; \
-		if diff $$t data/test/SYNTAX.$${formats[$$f]}; then \
+		sectxt.py --$$f doc/SYNTAX.sec > $$t; \
+		if diff $$t doc/test/SYNTAX.$${formats[$$f]}; then \
 			echo "$$f OK"; \
 		else \
 			echo "$$f Error" >&2; \
@@ -55,7 +55,7 @@ test_references:
 	declare -A formats=( ${FORMATS} ); \
 	for f in $${!formats[@]}; do \
 		echo $$f; \
-		sectxt.py --$$f data/SYNTAX.sec > data/test/SYNTAX.$${formats[$$f]}; \
+		sectxt.py --$$f doc/SYNTAX.sec > doc/test/SYNTAX.$${formats[$$f]}; \
 	done
 
 README.md: README.sec
