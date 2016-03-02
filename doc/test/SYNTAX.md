@@ -36,7 +36,7 @@ The paragraphs can be:
 
 #### Normal paragraphs
 The first non-tab character can be any char except 
-asterisk, slash or asterisk.
+asterisk (*), dash (-), greater-than (>) or number sign (#).
 
 You can write a paragraph using many lines. 
 
@@ -55,7 +55,7 @@ Example:
 *  Asia
 
 #### Numeric list elements
-The first non-tab character is #
+The first non-tab character is number sign (#).
 
 Example:
 
@@ -129,16 +129,12 @@ You can include external and internal images with curly brackets.
 
 You can add optional elements as title and the URL for a bigger image.
 
-Examples:
+Examples: 
 
-![The python](http://sectxtweb.appspot.com/images/python.jpg)
-
-![The python with bigger image](/images/python.jpg)
-
-![The python](/images/python.jpg)
-
-![Alternative text](/images/python.jpg)
-
+*  ![The python](http://sectxtweb.appspot.com/images/python.jpg) 
+*  ![The python with bigger image](/images/python.jpg) 
+*  ![The python](/images/python.jpg) 
+*  ![Alternative text](/images/python.jpg)
 
 
 ### Subsections
