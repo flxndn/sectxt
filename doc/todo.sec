@@ -5,6 +5,27 @@
 		* Latex
 			- all image modes
 			- first paragraphs as abstract
+		* Add italic and bold text
+			I have think that that the marks for italics and bold used in 
+			Wikipedia are easy to understand and people are used to use they 
+			in many text formats.
+
+			But I have find a few problems :
+			
+			It's a state codification: two commas can be translated for 
+			italics-begin or for italics-end.
+
+			The translation of a symbol depends not only of the previous 
+			symbols also depends of the next symbols.
+			> '''''bold and italics'' only bold'''
+			> '''''bold and italics''' only italics''
+			When you translate the first symbol to html has two possible 
+			translations:
+			> <strong><em>bold and italics</em> only bold</strong>
+			> <em><strong>bold and italics</strong> only italics</em>
+
+			One possible solution is to translate into an stateless without 
+			ambiguity in a first stage and create elements in a second stage.
 
 	* Done
 		* Version 0.1

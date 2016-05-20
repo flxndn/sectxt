@@ -41,21 +41,22 @@ if [ "$1" == "-h" ]; then
 	exit 0
 fi
 
-local title=$PROGRAM_NAME 
-local include_file=1
+title=$PROGRAM_NAME 
+include_file=1
 
 while echo "$1" | grep -q '^-'; do
 	if [ $1 == "-t" ]; then
 		title=$2
 		shift;shift;
 	fi
-	if [ $1 == "-n" ]; then
+	if [ "$1" == "-n" ]; then
 		include_file=0
 		shift;
 	fi
 done
 
 echo "* $title"
+IFS=$'\n'
 for i in $*; do
 	if [ "$include_file" == "1" ]; then
 		echo "	* $i"
