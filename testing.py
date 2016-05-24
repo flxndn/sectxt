@@ -8,10 +8,6 @@ from abc import ABCMeta, abstractmethod
 class Element:
 #-------------------------------------------------------------------------------
 	__metaclass__=ABCMeta
-	@abstractmethod
-	def parse(self): 
-		pass
-
 	def __init__(self, origin, init):
 		self.origin = origin
 		self.init = init 
@@ -21,49 +17,92 @@ class Element:
 
 	def properties(self):
 		return {'init':str(self.init),'end':str(self.end),'origin':self.origin,'url':self.url,'text':self.text}
+
+	def vectorInContext(self):
+		v=[]
+		if self.init > 0 :
+			v.append(['text', self.origin[0:self.init]])
+		v_element = self.vector()
+		if v_element != None :
+			v.append(['element',v_element])
+		final_text=self.origin[self.end+self.separatorWidth:]
+		if len(final_text) > 0 :
+			next_element = firstElement(final_text)
+			if next_element != None:
+				v.append(next_element.vectorInContext())
+			else:
+				v.append(['text', final_text])
+		return v
+
+	def vector(self):
+		return [type(self).__name__, self.text, self.url]
 #-------------------------------------------------------------------------------
 class Image(Element):
 #-------------------------------------------------------------------------------
-	def parse(self):
-		pass 
+	separatorWidth=2
 
 	def __init__(self, origin, init):
 		super(Image, self).__init__(origin, init)
-		position_vertica_bar=self.origin.find('|', self.init)
-		self.url=self.origin[self.init+2:position_vertica_bar]
+		position_separator=self.origin.find('|', self.init)
+		self.url=self.origin[self.init+self.separatorWidth:position_separator]
 		
-		self.end=self.origin.find('}}', position_vertica_bar)
-		position_next_bar=self.origin.find('|', position_vertica_bar+1)
+		self.end=self.origin.find('}}', position_separator)
+		position_next_bar=self.origin.find('|', position_separator+1)
 		if position_next_bar != -1 and position_next_bar < self.end:
-			self.text=self.origin[position_vertica_bar+1:position_next_bar]
-			self.url2=self.origin[position_next_bar:self.end]
+			self.text=self.origin[position_separator+1:position_next_bar]
+			self.url2=self.origin[position_next_bar+1:self.end]
 		else:
-			self.text=self.origin[position_vertica_bar+1:self.end]
+			text=self.origin[position_separator+1:self.end]
+			included=firstElement(text)
+			if included != None:
+				self.text=included.vectorInContext()
+			else:
+				self.text=text
 			self.url2=None
 	
 	def properties(self):
 		p={'url2':self.url2}
 		p.update(super(Image, self).properties())
 		return p
+	
+	def vector(self):
+		v=super(Image, self).vector()
+		if self.url2 != None:
+			v.append(self.url2)
+		return v
 		
 #-------------------------------------------------------------------------------
-class Url(Element):
+class Link(Element):
 #-------------------------------------------------------------------------------
-	def parse(self):
-		pass 
+	separatorWidth=2
+	def __init__(self, origin, init):
+		super(Link, self).__init__(origin, init)
+		position_separator=self.origin.find(' ', self.init)
+		self.url=self.origin[self.init+self.separatorWidth:position_separator]
+		
+		self.end=self.origin.find(']]', position_separator)
+
+		text=self.origin[position_separator+1:self.end]
+		included=firstElement(text)
+		if included != None:
+			self.text=included.vectorInContext() 
+		else:
+			self.text = text
 #-------------------------------------------------------------------------------
 def firstElement(text):
 #-------------------------------------------------------------------------------
-	i_url=text.find('[[');
-	i_img=text.find('{{');
-	if i_url == -1 and i_img == -1:
+	i_link=text.find('[[');
+	i_image=text.find('{{');
+	if i_link == -1 and i_image == -1:
 		return None
-	elif i_url == -1:
-		return Image(text, i_img)
-	elif i_img < i_url:
-		return Image(text, i_img)
+	elif i_link == -1 :
+		return Image(text, i_image)
+	elif i_image == -1 :
+		return Link(text, i_link)
+	elif i_image < i_link:
+		return Image(text, i_image)
 	else:
-		return Url(text, i_url)
+		return Link(text, i_link)
 #-------------------------------------------------------------------------------
 def buscar(texto, caracteres, nombre):
 #-------------------------------------------------------------------------------
@@ -83,7 +122,10 @@ def parserelements(vector):
 	for v in vector:
 		if v[0]=='txt':
 			first=firstElement(v[1])
-			print first
+			if first != None:
+				aux.extend(first.vectorInContext())
+			else:
+				aux.append(v)
 		else:
 			aux.append(v)
 	vector=aux
@@ -110,19 +152,27 @@ def main():
 	cursiva_negritacursiva_enlace_cursiva="Esta ''frase'' tiene '''''negrita con cursiva''''', ''[[https://books.google.es/books?id=gPAM96Q_iToC Tiempo de silencio]]'', enlace en cursiva."
 	problema_comillas="Texto en ''cursiva con la ultima palabra en '''negrita''''''."
 	problema_comillas_inversas="'''''combinada'' negrita''' ''cursiva''."
-	texto=problema_comillas
-	
-	imgWithtUrls="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]''' and the [[https://en.wikipedia.org/wiki/Moon]]}}";
+	imgWithtUrlSimple="{{url_img|before [[url_link text]] after [[url_link2 txtt2]] end}}";
+	imgWitht2Urls="{{img_src|[[url1 txt1] and [[url2 txt2]]}}";
+	imgWithtUrls1="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}";
+	image_simple="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}";
 	urlWithImage="[[https://en.wikipedia.org/wiki/Earth%E2%80%93Moon%E2%80%93Earth_communication {{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''''Earth–Moon–Earth''' communication''}}]]";
 
-	#vector=parsercomillas([['txt',problema_comillas_inversas+imgWithtUrls]]);
-	#print(vector)
+	textos= [ 
+			#cursiva_negritacursiva_enlace_cursiva,
+			#problema_comillas,
+			#problema_comillas_inversas,
+			#imgWithtUrlSimple,
+			imgWitht2Urls
+			#imgWithtUrls1,
+			#image_simple,
+			#urlWithImage 
+			]
 
-	image_simple="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}";
-	image_with_max="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/minresdefault.jpg|Earth and Moon|https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg}}";
-	vector=parserelements([['txt',image_simple]])
-	vector=parserelements([['txt',image_with_max]])
-	#print(vector)
+	for texto in textos:
+		vector=parserelements([['txt',texto]])
+		print "In:  " + texto
+		print "out: " + str(vector)
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 main()
