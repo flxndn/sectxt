@@ -153,20 +153,20 @@ def main():
 	problema_comillas="Texto en ''cursiva con la ultima palabra en '''negrita''''''."
 	problema_comillas_inversas="'''''combinada'' negrita''' ''cursiva''."
 	imgWithtUrlSimple="{{url_img|before [[url_link text]] after [[url_link2 txtt2]] end}}";
-	imgWitht2Urls="{{img_src|[[url1 txt1] and [[url2 txt2]]}}";
-	imgWithtUrls1="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}";
+	imgWitht2Urls="beguin {{img_src|[[url1 txt1]] and [[url2 txt2]]}} end {{img|kk}}";
+	imgWithtUrls1="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}";
 	image_simple="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}";
 	urlWithImage="[[https://en.wikipedia.org/wiki/Earth%E2%80%93Moon%E2%80%93Earth_communication {{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''''Earth–Moon–Earth''' communication''}}]]";
 
 	textos= [ 
-			#cursiva_negritacursiva_enlace_cursiva,
-			#problema_comillas,
-			#problema_comillas_inversas,
-			#imgWithtUrlSimple,
-			imgWitht2Urls
-			#imgWithtUrls1,
-			#image_simple,
-			#urlWithImage 
+			cursiva_negritacursiva_enlace_cursiva,
+			problema_comillas,
+			problema_comillas_inversas,
+			imgWithtUrlSimple,
+			imgWitht2Urls,
+			imgWithtUrls1,
+			image_simple,
+			urlWithImage 
 			]
 
 	for texto in textos:
