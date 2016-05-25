@@ -21,17 +21,17 @@ class Element:
 	def vectorInContext(self):
 		v=[]
 		if self.init > 0 :
-			v.append(['text', self.origin[0:self.init]])
+			v.extend(parse_quotation(self.origin[0:self.init]))
 		v_element = self.vector()
 		if v_element != None :
-			v.append(['element',v_element])
+			v.append(v_element)
 		final_text=self.origin[self.end+self.separatorWidth:]
 		if len(final_text) > 0 :
-			next_element = firstElement(final_text)
+			next_element = first_element(final_text)
 			if next_element != None:
-				v.append(next_element.vectorInContext())
+				v.extend(next_element.vectorInContext())
 			else:
-				v.append(['text', final_text])
+				v.extend(parse_quotation(final_text))
 		return v
 
 	def vector(self):
@@ -53,7 +53,7 @@ class Image(Element):
 			self.url2=self.origin[position_next_bar+1:self.end]
 		else:
 			text=self.origin[position_separator+1:self.end]
-			included=firstElement(text)
+			included=first_element(text)
 			if included != None:
 				self.text=included.vectorInContext()
 			else:
@@ -83,13 +83,13 @@ class Link(Element):
 		self.end=self.origin.find(']]', position_separator)
 
 		text=self.origin[position_separator+1:self.end]
-		included=firstElement(text)
+		included=first_element(text)
 		if included != None:
 			self.text=included.vectorInContext() 
 		else:
 			self.text = text
 #-------------------------------------------------------------------------------
-def firstElement(text):
+def first_element(text):
 #-------------------------------------------------------------------------------
 	i_link=text.find('[[');
 	i_image=text.find('{{');
@@ -104,75 +104,96 @@ def firstElement(text):
 	else:
 		return Link(text, i_link)
 #-------------------------------------------------------------------------------
-def buscar(texto, caracteres, nombre):
-#-------------------------------------------------------------------------------
-	vector=[]
-	trozos=texto.split(caracteres);
-	for (i, t) in enumerate(trozos):
-		if i>0:
-			vector.append(['sym',nombre])
-		if len(t) > 0:
-			vector.append(['txt',t])
-
-	return vector
-#-------------------------------------------------------------------------------
-def parserelements(vector):
+def parse_elements(vector):
 #-------------------------------------------------------------------------------
 	aux=[]
 	for v in vector:
-		if v[0]=='txt':
-			first=firstElement(v[1])
+		if v[0]=='TXT':
+			first=first_element(v[1])
 			if first != None:
 				aux.extend(first.vectorInContext())
 			else:
-				aux.append(v)
+				aux.extend(parse_quotation(v[1]))
 		else:
 			aux.append(v)
 	vector=aux
 	return vector
 #-------------------------------------------------------------------------------
-def parsercomillas(vector):
+def search_replace(texto, caracteres, nombre):
+#-------------------------------------------------------------------------------
+	vector=[]
+	fragments=texto.split(caracteres);
+	for (i, t) in enumerate(fragments):
+		if i>0:
+			vector.append(['SYM',nombre])
+		if len(t) > 0:
+			vector.append(['TXT',t])
+
+	return vector
+#-------------------------------------------------------------------------------
+def parse_quotation(text):
 #-------------------------------------------------------------------------------
 	simbols = [["'''''", "_bold_italic_"],
 				["'''", "_bold_"],
 				["''", "_italic_"]]
+	vector=[['TXT', text]]
 	for simbol in simbols: 
 		aux=[]
 		for v in vector:
-			if v[0]=='txt':
-				aux.extend(buscar(v[1], simbol[0], simbol[1]));
+			if v[0]=='TXT':
+				aux.extend(search_replace(v[1], simbol[0], simbol[1]));
 			else:
 				aux.append(v)
 		vector=aux
 	return vector
 #-------------------------------------------------------------------------------
+def vector_formatter(vector, offset=""):
+#-------------------------------------------------------------------------------
+	for v in vector:
+		object_class=v[0]
+		content=v[1:]
+		print offset+object_class[:3].upper()
+		if object_class == 'TXT':
+			print offset+"  text=",content[0]
+		if object_class == 'SYM':
+			print offset+"  symbol=",content[0]
+		if object_class == 'Image' or object_class == 'Link':
+			if isinstance(content[0], list):
+				vector_formatter(content[0], offset+"    ")
+			else:
+				print offset+"  text=",content[0]
+			print offset+"  url=", content[1]
+		
+#-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 def main():
 #-------------------------------------------------------------------------------
-	cursiva_negritacursiva_enlace_cursiva="Esta ''frase'' tiene '''''negrita con cursiva''''', ''[[https://books.google.es/books?id=gPAM96Q_iToC Tiempo de silencio]]'', enlace en cursiva."
-	problema_comillas="Texto en ''cursiva con la ultima palabra en '''negrita''''''."
-	problema_comillas_inversas="'''''combinada'' negrita''' ''cursiva''."
+	simple_italic="''italic'' text"
+	italic_bolditalic_link_italic="Esta ''frase'' tiene '''''bold con italic''''', ''[[https://books.google.es/books?id=gPAM96Q_iToC Tiempo de silencio]]'', link en italic."
+	quotation_1="Texto en ''italic con la ultima palabra en '''bold''''''."
+	quotation_2="'''''combinada'' bold''' ''italic''."
 	imgWithtUrlSimple="{{url_img|before [[url_link text]] after [[url_link2 txtt2]] end}}";
-	imgWitht2Urls="beguin {{img_src|[[url1 txt1]] and [[url2 txt2]]}} end {{img|kk}}";
+	imgWitht2Urls="begin {{img_src|[[url1 txt1]] and [[url2 txt2]]}} end {{img|kk}}";
 	imgWithtUrls1="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}";
 	image_simple="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}";
 	urlWithImage="[[https://en.wikipedia.org/wiki/Earth%E2%80%93Moon%E2%80%93Earth_communication {{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''''Earth–Moon–Earth''' communication''}}]]";
 
 	textos= [ 
-			cursiva_negritacursiva_enlace_cursiva,
-			problema_comillas,
-			problema_comillas_inversas,
-			imgWithtUrlSimple,
+			simple_italic,
+			italic_bolditalic_link_italic,
+			quotation_1,
+			#quotation_2,
+			#imgWithtUrlSimple,
 			imgWitht2Urls,
-			imgWithtUrls1,
-			image_simple,
-			urlWithImage 
+			#imgWithtUrls1,
+			#image_simple,
+			#urlWithImage 
 			]
 
 	for texto in textos:
-		vector=parserelements([['txt',texto]])
+		vector=parse_elements([['TXT',texto]])
 		print "In:  " + texto
-		print "out: " + str(vector)
+		vector_formatter(vector)
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 main()
