@@ -6,7 +6,12 @@ from abc import ABCMeta, abstractmethod
 
 #-------------------------------------------------------------------------------
 class RichText:
+#-------------------------------------------------------------------------------
 	v = []
+	format=0
+	# 0 : plain text
+	# 1 : bold
+	# 2 : italic
 	def __init__(self, text):
 		self.v=self.parse_elements([['TXT',text]])
 
@@ -144,6 +149,13 @@ def search_replace(texto, caracteres, nombre):
 #-------------------------------------------------------------------------------
 def parse_quotation(text):
 #-------------------------------------------------------------------------------
+	vector=parse_quotation_simple(text)
+	vret=vector_expand_bold_italics(vector)
+	return vret
+
+#-------------------------------------------------------------------------------
+def parse_quotation_simple(text):
+#-------------------------------------------------------------------------------
 	simbols = [["'''''", "_bold_italics_"],
 				["'''", "_bold_"],
 				["''", "_italics_"]]
@@ -228,13 +240,13 @@ def main():
 	textos= [ 
 			#simple_italics,
 			#quotation_1,
-			#quotation_2,
+			quotation_2,
 			#italics_bolditalics_link_italics,
 			#imgWithtUrlSimple,
 			#imgWitht2Urls,
 			#imgWithtUrls1,
 			#image_simple,
-			urlWithImage 
+			#urlWithImage 
 			]
 
 	for texto in textos:
