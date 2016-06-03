@@ -7,36 +7,59 @@ from abc import ABCMeta, abstractmethod
 #-------------------------------------------------------------------------------
 class RichText:
 #-------------------------------------------------------------------------------
-	v = []
-	format=0
-	# 0 : plain text
-	# 1 : bold
-	# 2 : italic
-	def __init__(self, text):
-		self.v=self.parse_elements([['TXT',text]])
+	format=""
+	items=[]
+
+	def __init__(self, base, format=""):
+		self.items = []
+		self.format = format
+		aux=[]
+		if type(base).__name__ != 'str':
+			aux = base
+		else:
+			vector=[['TXT', base]]
+			for v in vector:
+				if v[0]=='TXT':
+					first=first_element(v[1])
+					if first != None:
+						aux.extend(first.vectorInContext())
+					else:
+						aux.extend(parse_quotation(v[1]))
+				else:
+					aux.append(v)
+
+		#import pdb; pdb.set_trace()
+		self.items= self.vector2items(aux)
+
+	def vector2items(self, aux):
+		items=[]
+		in_symbol= False
+		for v in aux:
+			if not in_symbol :
+				if v[0] == 'SYM':
+					in_symbol = True
+					subvector = []
+					subformat = v[1]
+				else:
+					items.append(v)
+			else:
+				if v[0] == 'SYM' and v[1] == subformat:
+					subelement=RichText(subvector, subformat)
+					items.append(subelement)
+					in_symbol = False
+				else:
+					subvector.append(v[1])
+		return items
 
 	def __str__(self):
-		res= 'RichText:'
-		for item in self.v:
-			res+=str(item)+"\n"
+		res= "<RichText format=\""+self.format+"\">"
+		for item in self.items:
+			res+=str(item)
+		res += "</RichText>"
 		return res
 
 	def __repr__(self):
 		return str(self)
-
-	def parse_elements(self,vector):
-		aux=[]
-		for v in vector:
-			if v[0]=='TXT':
-				first=first_element(v[1])
-				if first != None:
-					aux.extend(first.vectorInContext())
-				else:
-					aux.extend(parse_quotation(v[1]))
-			else:
-				aux.append(v)
-		vector=aux
-		return vector
 #-------------------------------------------------------------------------------
 class RT_Element:
 #-------------------------------------------------------------------------------
@@ -50,9 +73,6 @@ class RT_Element:
 	def __init__(self, context, init):
 		self.context = context
 		self.init = init 
-
-	def __str__(self):
-		return type(self).__name__+"::"+ str(self.properties())
 
 	def properties(self):
 		return {'init':str(self.init),'end':str(self.end),'context':self.context,'url':self.url,'text':self.text}
@@ -105,7 +125,9 @@ class RT_Image(RT_Element):
 		if self.url2 != None:
 			v.append(self.url2)
 		return v
-		
+
+	def __str__(self):
+		return "<img src=\""+self.url+"\" link=\""+self.url2+"\">"+str(self.txt)+"</img>";
 #-------------------------------------------------------------------------------
 class RT_Link(RT_Element):
 #-------------------------------------------------------------------------------
@@ -119,6 +141,8 @@ class RT_Link(RT_Element):
 
 		text=self.context[position_separator+1:self.end]
 		self.text=RichText(text)
+	def __str__(self):
+		return "<a href=\""+self.url+"\">"+str(self.txt)+"</a>";
 #-------------------------------------------------------------------------------
 def first_element(text):
 #-------------------------------------------------------------------------------
@@ -179,7 +203,6 @@ def vector_expand_bold_italics(vector):
 		if v[0] != 'SYM' or v[1]!='_bold_italics_':
 			aux.append(v)
 		else:
-			#import pdb; pdb.set_trace()
 			first_bold=True
 			if bold and not italics:
 				first_bold = True
