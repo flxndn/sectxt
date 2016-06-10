@@ -28,33 +28,39 @@ class RichText:
 				else:
 					aux.append(v)
 
-		#import pdb; pdb.set_trace()
 		self.items= self.vector2items(aux)
 
 	def vector2items(self, aux):
 		items=[]
 		in_symbol= False
 		for v in aux:
-			if not in_symbol :
+			if in_symbol :
+				if v[0] == 'SYM' and v[1] == subformat:
+					subelement=RichText(subvector, subformat)
+					items.append(subelement)
+					in_symbol = False
+				else:
+					subvector.append(v)
+			else:
 				if v[0] == 'SYM':
 					in_symbol = True
 					subvector = []
 					subformat = v[1]
 				else:
 					items.append(v)
-			else:
-				if v[0] == 'SYM' and v[1] == subformat:
-					subelement=RichText(subvector, subformat)
-					items.append(subelement)
-					in_symbol = False
-				else:
-					subvector.append(v[1])
 		return items
 
 	def __str__(self):
 		res= "<RichText format=\""+self.format+"\">"
 		for item in self.items:
-			res+=str(item)
+			if not isinstance(item, list):
+				res +=str(item)
+			elif item[0] == 'TXT':
+				res += item[1]
+			elif item[0] == 'RT_Link':
+				res += "<a href=\""+item[2]+"\">"+str(item[1])+"</a>"
+			else:
+				res+=str(item)
 		res += "</RichText>"
 		return res
 
@@ -132,6 +138,7 @@ class RT_Image(RT_Element):
 class RT_Link(RT_Element):
 #-------------------------------------------------------------------------------
 	separatorWidth=2
+
 	def __init__(self, context, init):
 		super(RT_Link, self).__init__(context, init)
 		position_separator=self.context.find(' ', self.init)
@@ -141,11 +148,13 @@ class RT_Link(RT_Element):
 
 		text=self.context[position_separator+1:self.end]
 		self.text=RichText(text)
+
 	def __str__(self):
 		return "<a href=\""+self.url+"\">"+str(self.txt)+"</a>";
 #-------------------------------------------------------------------------------
 def first_element(text):
 #-------------------------------------------------------------------------------
+	#import pdb; pdb.set_trace()
 	i_link=text.find('[[');
 	i_image=text.find('{{');
 	if i_link == -1 and i_image == -1:
@@ -250,32 +259,40 @@ def vector_expand_bold_italics(vector):
 #-------------------------------------------------------------------------------
 def main():
 #-------------------------------------------------------------------------------
-	simple_italics="''italics'' text"
-	quotation_1="Texto en ''italics con la ultima palabra en '''bold''''''."
-	quotation_2="'''''combinada'' bold''' ''italics''."
-	italics_bolditalics_link_italics="Esta ''frase'' tiene '''''bold con italics''''', ''[[https://books.google.es/books?id=gPAM96Q_iToC Tiempo de silencio]]'', link en italics."
-	imgWithtUrlSimple="{{url_img|before [[url_link text]] after [[url_link2 txtt2]] end}}";
-	imgWitht2Urls="begin {{img_src|[[url1 txt1]] and [[url2 txt2]]}} end {{img|kk}}";
-	imgWithtUrls1="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}";
-	image_simple="{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}";
-	urlWithImage="[[https://en.wikipedia.org/wiki/Earth%E2%80%93Moon%E2%80%93Earth_communication {{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''''Earth–Moon–Earth''' communication''}}]]";
+	tests={
+	'simple_italics' : "''italics'' text",
+	'quotation_1' : "Texto en ''italics con la ultima palabra en '''bold''''''.",
+	'quotation_2' : "'''''combinada'' bold''' ''italics''.",
+	'link' : "go to [[en.wikipedia.org wikipedia]]",
+	'italics_bolditalics_link_italics' : "Esta ''frase'' tiene '''''bold con italics''''', ''[[https://books.google.es/books?id=gPAM96Q_iToC Tiempo de silencio]]'', link en italics.",
+	'imgWithtUrlSimple' : "{{url_img|before [[url_link text]] after [[url_link2 txtt2]] end}}",
+	'imgWitht2Urls' : "begin {{img_src|[[url1 txt1]] and [[url2 txt2]]}} end {{img|kk}}",
+	'imgWithtUrls1' : "{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}",
+	'image_simple' : "{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}",
+	'urlWithImage' : "[[https://en.wikipedia.org/wiki/Earth%E2%80%93Moon%E2%80%93Earth_communication {{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''''Earth–Moon–Earth''' communication''}}]]",
+	}
 
 	textos= [ 
-			#simple_italics,
-			#quotation_1,
-			quotation_2,
-			#italics_bolditalics_link_italics,
-			#imgWithtUrlSimple,
-			#imgWitht2Urls,
-			#imgWithtUrls1,
-			#image_simple,
-			#urlWithImage 
+			'simple_italics',
+			'quotation_1',
+			'quotation_2',
+			'italics_bolditalics_link_italics',
+			'link',
+			'imgWithtUrlSimple',
+			'imgWitht2Urls',
+			'imgWithtUrls1',
+			'image_simple',
+			'urlWithImage'
 			]
 
+	print "<test>"
 	for texto in textos:
-		print "In:  " + texto
-		rtext=RichText(texto)
-		print str(rtext)
+		print "<test id=\""+texto+"\">"
+		print "<in>" + tests[texto] + "</in>"
+		rtext=RichText(tests[texto])
+		print "<out>" + str(rtext) +"</out>"
+		print "</test>"
+	print "</test>"
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 main()

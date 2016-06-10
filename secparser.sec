@@ -1,0 +1,53 @@
+* Seocparser
+	* Problema
+		No hay una manera clara de hacerlo mediante expresiones regulares.
+
+		Es un problema que a mano es resoluble, por lo que se puede utilizar 
+		el algoritmo, sólo hay que concretarlo.
+
+	* Significado de los símbolos
+		Son símbolos adicionales, las propiedades del texto a continuación de los símbolos cambia respecto al anterior.
+
+		Al principio de la frase el estado es normal (sin negrita y sin cursiva).
+
+		Al final de la frase el estado tiene que ser neutro.
+
+	 	- '' :: Cambio de estado de cursiva.
+		- ''' :: Cambio de estado de negrita.
+		- ''''' :: Cambio de estado de negrita y cursiva.
+
+	* Ejemplo
+		Tenemos una línea en formato sec con texto en negrita y cursiva extremo
+
+		> A'''''B''C'''D'''''E'''F'''G'''''H'''''J'''''
+
+		En html usando las etiquetas <b> e <i> para negrita y cursiva quedaría:
+
+		> A<b><i>B</i>C</b>D<i><b>E</b>F<b>G</b></i>H<b><i>J</i></b>
+
+		equivalente a
+
+		> A<b><i>B</i>C</b>D<i><b>E</b>F<b>G</b></i>H<i><b>J</b></i>
+
+		Podemos codificar negrita y cursiva como:
+		- 00: normal, ni negrita ni cursiva.
+		- 01: negrita
+		- 10: cursiva
+		- 11: negrita y cursiva
+		
+		El estado tras un símbolo símbolo se puede indicar con la fórmula:
+		> E1 = E0 xor simbolo
+
+		El texto de se podría almacenar como un vector de textos con estado:
+		- 00 A
+		- 11 B
+		- 01 C
+		- 00 D
+		- 11 E
+		- 10 F
+		- 11 G
+		- 00 H
+		- 11 J
+
+
+
