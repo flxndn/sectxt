@@ -5,13 +5,21 @@ import re
 from abc import ABCMeta, abstractmethod
 
 #-------------------------------------------------------------------------------
-class RichText:
+class Test:
+#-------------------------------------------------------------------------------
+	def __init__(self, id, input, out_html):
+		self.id=id
+		self.input=input
+		self.out_html=out_html
+
+#-------------------------------------------------------------------------------
+class Line:
 #-------------------------------------------------------------------------------
 	format=""
-	items=[]
+	elements=[]
 
 	def __init__(self, base, format=""):
-		self.items = []
+		self.elements = []
 		self.format = format
 		aux=[]
 		if type(base).__name__ != 'str':
@@ -28,16 +36,18 @@ class RichText:
 				else:
 					aux.append(v)
 
-		self.items= self.vector2items(aux)
-
-	def vector2items(self, aux):
-		items=[]
+		self.elements=self.__vector2items__(aux)
+		#import pdb; pdb.set_trace()
+		pass
+		
+	def __vector2items__(self, aux):
+		elements=[]
 		in_symbol= False
 		for v in aux:
 			if in_symbol :
 				if v[0] == 'SYM' and v[1] == subformat:
-					subelement=RichText(subvector, subformat)
-					items.append(subelement)
+					subelement=Line(subvector, subformat)
+					elements.append(subelement)
 					in_symbol = False
 				else:
 					subvector.append(v)
@@ -47,25 +57,40 @@ class RichText:
 					subvector = []
 					subformat = v[1]
 				else:
-					items.append(v)
-		return items
+					elements.append(v)
+		return elements
 
 	def __str__(self):
-		res= "<RichText format=\""+self.format+"\">"
-		for item in self.items:
+		if self.format == '_italics_':
+			begin="<em>"; end="</em>"
+		elif self.format == '_bold_':
+			begin="<strong>"; end="</strong>"
+		elif self.format == '':
+			begin=""; end=""
+		else:
+			begin="<Line format=\""+self.format+"\">"
+			end="</Line>"
+
+		res= begin
+		for item in self.elements:
 			if not isinstance(item, list):
 				res +=str(item)
 			elif item[0] == 'TXT':
 				res += item[1]
 			elif item[0] == 'RT_Link':
 				res += "<a href=\""+item[2]+"\">"+str(item[1])+"</a>"
+			elif item[0] == 'RT_Image':
+				res += "<img src=\""+item[2]+"\" alt=\""+str(item[1].plainText())+"\">"+str(item[1])+"</a>"
 			else:
 				res+=str(item)
-		res += "</RichText>"
+		res += end
 		return res
 
 	def __repr__(self):
 		return str(self)
+
+	def plainText(self):
+		return "TODO"
 #-------------------------------------------------------------------------------
 class RT_Element:
 #-------------------------------------------------------------------------------
@@ -101,6 +126,20 @@ class RT_Element:
 
 	def vector(self):
 		return [type(self).__name__, self.text, self.url]
+	
+	def plainText(self):
+		return self.text.plainText()
+#-------------------------------------------------------------------------------
+def RT_factory( element):
+#-------------------------------------------------------------------------------
+	#import pdb; pdb.set_trace()
+	if element[0] == 'TXT' :
+		return RT_SimpleText(element[1])
+#-------------------------------------------------------------------------------
+class RT_SimpleText(RT_Element):
+#-------------------------------------------------------------------------------
+	def __init__(self, text):
+		self.text = text
 #-------------------------------------------------------------------------------
 class RT_Image(RT_Element):
 #-------------------------------------------------------------------------------
@@ -115,11 +154,11 @@ class RT_Image(RT_Element):
 		self.end=self.context.find('}}', position_separator)
 		position_next_bar=self.context.find('|', position_separator+1)
 		if position_next_bar != -1 and position_next_bar < self.end:
-			self.text=RichText(self.context[position_separator+1:position_next_bar])
+			self.text=Line(self.context[position_separator+1:position_next_bar])
 			self.url2=self.context[position_next_bar+1:self.end]
 		else:
 			text=self.context[position_separator+1:self.end]
-			self.text=RichText(text)
+			self.text=Line(text)
 	
 	def properties(self):
 		p={'url2':self.url2}
@@ -134,6 +173,7 @@ class RT_Image(RT_Element):
 
 	def __str__(self):
 		return "<img src=\""+self.url+"\" link=\""+self.url2+"\">"+str(self.txt)+"</img>";
+
 #-------------------------------------------------------------------------------
 class RT_Link(RT_Element):
 #-------------------------------------------------------------------------------
@@ -147,14 +187,15 @@ class RT_Link(RT_Element):
 		self.end=self.context.find(']]', position_separator)
 
 		text=self.context[position_separator+1:self.end]
-		self.text=RichText(text)
+		self.text=Line(text)
 
 	def __str__(self):
 		return "<a href=\""+self.url+"\">"+str(self.txt)+"</a>";
 #-------------------------------------------------------------------------------
 def first_element(text):
+# Returns RT_Link or RT_Image (the first which occured in string text)
+# Returns None if theres is no image nor link
 #-------------------------------------------------------------------------------
-	#import pdb; pdb.set_trace()
 	i_link=text.find('[[');
 	i_image=text.find('{{');
 	if i_link == -1 and i_image == -1:
@@ -168,13 +209,13 @@ def first_element(text):
 	else:
 		return RT_Link(text, i_link)
 #-------------------------------------------------------------------------------
-def search_replace(texto, caracteres, nombre):
+def search_replace(text, chars, name):
 #-------------------------------------------------------------------------------
 	vector=[]
-	fragments=texto.split(caracteres);
+	fragments=text.split(chars);
 	for (i, t) in enumerate(fragments):
 		if i>0:
-			vector.append(['SYM',nombre])
+			vector.append(['SYM',name])
 		if len(t) > 0:
 			vector.append(['TXT',t])
 
@@ -185,7 +226,6 @@ def parse_quotation(text):
 	vector=parse_quotation_simple(text)
 	vret=vector_expand_bold_italics(vector)
 	return vret
-
 #-------------------------------------------------------------------------------
 def parse_quotation_simple(text):
 #-------------------------------------------------------------------------------
@@ -204,6 +244,7 @@ def parse_quotation_simple(text):
 	return vector
 #-------------------------------------------------------------------------------
 def vector_expand_bold_italics(vector):
+#-------------------------------------------------------------------------------
 	bold=False
 	italics=False
 	count=0
@@ -260,39 +301,47 @@ def vector_expand_bold_italics(vector):
 def main():
 #-------------------------------------------------------------------------------
 	tests={
-	'simple_italics' : "''italics'' text",
-	'quotation_1' : "Texto en ''italics con la ultima palabra en '''bold''''''.",
-	'quotation_2' : "'''''combinada'' bold''' ''italics''.",
-	'link' : "go to [[en.wikipedia.org wikipedia]]",
-	'italics_bolditalics_link_italics' : "Esta ''frase'' tiene '''''bold con italics''''', ''[[https://books.google.es/books?id=gPAM96Q_iToC Tiempo de silencio]]'', link en italics.",
-	'imgWithtUrlSimple' : "{{url_img|before [[url_link text]] after [[url_link2 txtt2]] end}}",
-	'imgWitht2Urls' : "begin {{img_src|[[url1 txt1]] and [[url2 txt2]]}} end {{img|kk}}",
-	'imgWithtUrls1' : "{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}",
-	'image_simple' : "{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}",
-	'urlWithImage' : "[[https://en.wikipedia.org/wiki/Earth%E2%80%93Moon%E2%80%93Earth_communication {{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''''Earth–Moon–Earth''' communication''}}]]",
+		Test('simple_italics' , "''italics'' text", "<em>italics</em> text"),
+		Test('quotation_1' , "Texto en ''italics con la ultima palabra en '''bold'''''.", "Texto en <em>italics con la ultima palabra en <strong>bold</strong></em>."),
+		Test('quotation_2' , "'''''combinada'' bold''' ''italics''.", "<strong><em>combinada</em> bold</strong> <em>italics</em>."),
+		Test('link' , "go to [[http://en.wikipedia.org wikipedia]]", "go to <a href=\"http://en.wikipedia.org\">wikipedia</a>"),
+		Test('italics_bolditalics_link_italics' , "Esta ''frase'' tiene '''''bold con italics''''', ''[[https://books.google.es/books?id=gPAM96Q_iToC Tiempo de silencio]]'', link en italics.", "Esta <em>frase</em> tiene <strong><em>bold con italics</em></strong>, <em><a href=\"https://books.google.es/books?id=gPAM96Q_iToC\">Tiempo de silencio</a></em>, link en italics."),
+		Test(	'imgWithtUrlSimple' , 
+				"{{https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Vladimirskaya.jpg/61px-Vladimirskaya.jpg|before [[url_link text]] after [[url_link2 txt2]] end}}", 
+				"<img src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Vladimirskaya.jpg/61px-Vladimirskaya.jpg\" alt=\"before text after txt2 end\" />before <a href=\"url_link\">text</a> after <a href=\"url_link2\">txt2</a> end"),
+		#Test('imgWitht2Urls' , "begin {{img_src|[[url1 txt1]] and [[url2 txt2]]}} end {{img|kk}}", ""),
+		#Test('imgWithtUrls1' , "{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''[[https://en.wikipedia.org/wiki/Earth Earth]]''' and the [[https://en.wikipedia.org/wiki/Moon Moon]]}}", ""),
+		#Test('image_simple' , "{{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|Earth and Moon}}", ""),
+		#Test('urlWithImage' , "[[https://en.wikipedia.org/wiki/Earth%E2%80%93Moon%E2%80%93Earth_communication {{https://i.ytimg.com/vi/FjCKwkJfg6Y/maxresdefault.jpg|'''''Earth–Moon–Earth''' communication''}}]]", ""),
 	}
 
-	textos= [ 
-			'simple_italics',
-			'quotation_1',
-			'quotation_2',
-			'italics_bolditalics_link_italics',
-			'link',
-			'imgWithtUrlSimple',
-			'imgWitht2Urls',
-			'imgWithtUrls1',
-			'image_simple',
-			'urlWithImage'
-			]
-
-	print "<test>"
-	for texto in textos:
-		print "<test id=\""+texto+"\">"
-		print "<in>" + tests[texto] + "</in>"
-		rtext=RichText(tests[texto])
-		print "<out>" + str(rtext) +"</out>"
-		print "</test>"
-	print "</test>"
+	print '''<style>
+	.input { background: #ffb }
+	.out {background: #cfb }
+	.correct_out {background: #cf8 }
+	.result {background: #fcb }
+	.NO_OK {background: #f00 }
+	dt {
+		margin-top:1em;
+		margin-bottom: 0.5em;
+		weight: bold;
+		border-top: 1px solid black;
+	}
+	</style>'''
+	print "<dl id=\"test\">"
+	for test in tests:
+		rtext=Line(test.input)
+		print "<dt id=\""+test.id+"\">"+test.id+"</dt>"
+		print "<dd class=\"input\"><pre>" + test.input + "</pre></dd>"
+		print "<dd class=\"out\">" + str(rtext) +"</dd>"
+		print "<dd class=\"correct_out\">" + test.out_html +"</dd>"
+		#import pdb; pdb.set_trace()
+		if str(rtext) == test.out_html:
+			result='OK'
+		else:
+			result='NO_OK'
+		print "<dd class=\"result "+result+"\">" + result +"</dd>"
+	print "</dl>"
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 main()
