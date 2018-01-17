@@ -660,8 +660,7 @@ class ListElementDefinitionDefinition(NestedLine):
 		return "\t\t<dd>"+self.elements.toHTML()+"</dd>\n"
 
 	def toMarkdown(self):
-		#FIXME
-		return "* "+self.elements.toMarkdown()+"\n"
+		return "   "+self.elements.toMarkdown()+"\n"
 
 	def toXML(self):
 		return "<dd>"+self.elements.toXML()+"</dd>"
