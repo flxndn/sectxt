@@ -4,6 +4,8 @@
 import re, sys, getopt
 from textwrap import dedent
 
+global global_options 
+
 def notImplemented():
 	print "Not implemented yet."
 
@@ -170,9 +172,15 @@ class ImageTitled(Image):
 		return "{{%s|%s}}" % (self.url, self.title)
 
 	def toHTML(self):
-		return "<img src=\"%s\" alt=\"%s\" title=\"%s\"/>" % (self.url, 
-															self.title, 
-															self.title)
+		if global_options['with_image_title']:
+			return "<div class=\"image_group\"><img class=\"image_group_image\" src=\"%s\" alt=\"%s\" title=\"%s\"/><p class=\"image_group_title\">%s</p></div>" % (self.url, 
+																self.title, 
+																self.title, 
+																self.title) 
+		else:
+			return "<img src=\"%s\" alt=\"%s\" title=\"%s\"/>" % (self.url, 
+																self.title, 
+																self.title)
 	def toMarkdown(self):
 		return "![%s](%s)" % (self.title, self.url)
 
@@ -204,7 +212,20 @@ class ImageBig(ImageTitled):
 		return "{{%s|%s|%s}}" % (self.url, self.title, self.urlBig)
 
 	def toHTML(self):
-		return """<a href="%s"><img src="%s" alt="%s" title="%s"/></a>""" % (self.urlBig, self.url, self.title, self.title )
+
+		if global_options['with_image_title']:
+			return '''<div class="image_group">
+						<a href="%s">
+						<img class="image_group_image" src="%s" alt="%s" title="%s"/>
+						</a>
+						<p class=\"image_group_title\">%s</p>
+					</div>''' % (self.urlBig, 
+								self.url, 
+								self.title, 
+								self.title, 
+								self.title) 
+		else:
+			return """<a href="%s"><img src="%s" alt="%s" title="%s"/></a>""" % (self.urlBig, self.url, self.title, self.title )
 
 	def toMarkdown(self):
 		#FIXME: it doesn't use the urlBig
@@ -841,7 +862,7 @@ class Section:
 				+ subsections \
 				+ "</section>" )
 	
-	def toc(self, prePath, extra_divs):
+	def toc(self, prePath):
 		ret=''
 		if self.subsections:
 			ret = "<ul class=\"toc\">"
@@ -849,11 +870,11 @@ class Section:
 				ret += "<li><a href=\"#%s\">%s</a></li>" % ( re.sub('"', '_', prePath + "/" +s.title.toHTML()), s.title.toHTML() )
 			#ret += "<li><a href=\"#%s\">%s</a></li>" % ( prePath, "Subir" )
 			ret += "</ul>"
-			if extra_divs:
+			if global_options['extra_divs']:
 				ret += "<div class=\"toc_end\"></div>"
 		return ret
 
-	def toHTML(self, level = 1, path='', toc=False, extra_divs=True):
+	def toHTML(self, level = 1, path=''):
 		path=path+"/"+str(self.title.toHTML())
 		paragraphs=""
 		for i in self.paragraphs:
@@ -867,38 +888,38 @@ class Section:
 		if self.lastParagraph is not None:
 			paragraphs += self.lastParagraph.closeNestingTagHTML()
 
-		if paragraphs != "" and extra_divs:
+		if paragraphs != "" and global_options['extra_divs']:
 			paragraphs="<div class=\"paragraphs\">\n" + paragraphs + "</div><!--class=paragraphs-->\n"
 
 		subsections=""
 		for i in self.subsections:
-			subsections += i.toHTML( level + 1 , path, toc, extra_divs)
+			subsections += i.toHTML( level + 1, path)
 
-		if subsections != ""  and extra_divs:
+		if subsections != ""  and global_options['extra_divs']:
 			subsections="<div class=\"subsections\">\n" + subsections + "</div><!--class=subsections-->\n"
 
-		if extra_divs:
+		if global_options['extra_divs']:
 			aux = "<div class=\"section\">\n"
 		else: 
 			aux = ""
 
 		aux+= "<h%d><a name=\"%s\"></a>%s</h%d>\n" % (level, re.sub('"', '_', path), self.title.toHTML(), level)
-		if toc:
-			aux+= self.toc(path, extra_divs)
+		if global_options['toc']:
+			aux+= self.toc(path)
 
 		aux+= paragraphs + subsections
-		if extra_divs:
+		if global_options['extra_divs']:
 			aux+= "</div><!--class=section-->\n"
 		return aux
 
-	def toHTMLTOC(self, level = 1, path='', html_toc_max_level=0):
+	def toHTMLTOC(self, level = 1, path=''):
 		path=path+"/"+str(self.title.toHTML())
 		aux="<a href=\"#"+path+"\">"+self.title.toHTML()+"</a>";
 		subsections=""
 
-		if html_toc_max_level ==0 or level <= html_toc_max_level:
+		if global_options['html_toc_max_level'] or level <= global_options['html_toc_max_level']:
 			for i in self.subsections:
-				subsections += "<li>"+i.toHTMLTOC( level=level + 1 , path=path, html_toc_max_level=html_toc_max_level)+"</li>\n"
+				subsections += "<li>"+i.toHTMLTOC( level=level + 1, path=path)+"</li>\n"
 			if subsections != "":
 				aux+="<ul>" + subsections + "</ul>\n";
 
@@ -1188,11 +1209,16 @@ def usage():
 			Only works with selected type is html.
 		* -n, --no_extra_divs
 			Do not include extra divs for paragraphs, tocs, etc.
+		* --with-image-title
+			Only in --html. Show the title of the images.
 	"""
 
 def main():
+	global global_options
+	global_options = dict()
+
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "f:htkmxdwialno:", ["filter=", "help","txt","html","html_toc=", "markdown", "xml","dokuwiki","wikipedia","toc", "article", "latex", "no_extra_divs"])
+		opts, args = getopt.getopt(sys.argv[1:], "f:htkmxdwialno:", ["filter=", "help","txt","html","html_toc=", "markdown", "xml","dokuwiki","wikipedia","toc", "with-image-title", "article", "latex", "no_extra_divs"])
 	except getopt.GetoptError, err:
 		# print help information and exit:
 		print str(err) # will print something like "option -a not recognized"
@@ -1201,9 +1227,10 @@ def main():
 
 	sec = Section()
 	pattern = ""
-	html_toc_max_level=0
-	toc=False
-	extra_divs=True
+	global_options['with_image_title'] = False
+	global_options['toc'] = False
+	global_options['extra_divs'] = True
+	global_options['html_toc_max_level'] = 0
 	format = "sec"
 	for o, a in opts:
 		if o in ("-h", "--help"):
@@ -1218,7 +1245,7 @@ def main():
 				format = "html"
 			elif o in ("-o", "--html_toc"):
 				format = "html_toc"
-				html_toc_max_level=int(a)
+				global_options['html_toc_max_level'] = int(a)
 			elif o in ("-k", "--markdown"):
 				format = "markdown"
 			elif o in ("-x", "--xml"):
@@ -1232,9 +1259,11 @@ def main():
 			elif o in ("-l", "--latex"):
 				format = "latex"
 			elif o in ("-i", "--toc"):
-				toc = True
+				global_options['toc'] = True
+			elif o in ("--with-image-title"):
+				global_options['with_image_title'] = True
 			elif o in ("-n", "--no_extra_divs"):
-				extra_divs = False
+				global_options['extra_divs'] = False
 			else:
 				assert False, "unhandled option"
 
@@ -1249,9 +1278,9 @@ def main():
 	if format == "sec":
 		print sec.toString()
 	elif format == "html":
-		print sec.toHTML( toc=toc, extra_divs=extra_divs )
+		print sec.toHTML()
 	elif format == "html_toc":
-		print "<div id=\"full_toc\">"+sec.toHTMLTOC(html_toc_max_level=html_toc_max_level)+"</div>"
+		print "<div id=\"full_toc\">"+sec.toHTMLTOC()+"</div>"
 	elif format == "markdown":
 		print sec.toMarkdown()
 	elif format == "xml":
