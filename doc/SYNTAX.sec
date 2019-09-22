@@ -61,8 +61,14 @@
 				- title:: Moby Dick
 				- Author:: Herman Melville
 				- Year:: 1851:: 1926, first movie
+			* Formats
+				Can have 
+				- ''italics'', 
+				- '''bold''', 
+				- and '''''italics plus bold''''' formats.
 		* Titles and Paragraphs 
 			Can contain:
+
 			* Plain text
 				Plain text is..., well..., you know...
 			* Emphasized text
@@ -79,7 +85,13 @@
 				Hyperlinks are an URL and a title enclosed into double square
 				brackets, with an space between the URL and the title.
 
-				Example: [[https://en.wikipedia.org/wiki/Category:Markup_languages Competitors]] of sectxt.
+				Example:
+
+				>Search with [[http://www.google.es Google]].
+
+				Hyperlinks can have format:
+				here is ''The italic [[https://en.wikipedia.org/wiki/Main_Page Wikipedia]]''.
+
 			* Images
 				You can include external and internal images with curly brackets.	
 

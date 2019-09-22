@@ -3,6 +3,15 @@
 
 import re, sys, getopt
 from textwrap import dedent
+from pprint import pprint
+
+marks={ 
+		1: ["'''''", "'''''", 'StrongEmphasis'],
+		2: ["'''", "'''", 'Strong'],
+		3: ["''", "''", 'Emphasis'],
+		4: ['[[', ']]', 'Hyperlink'],
+		5: ['{{', '}}', 'Image'],
+		 }
 
 global global_options 
 
@@ -16,138 +25,153 @@ def tabulate(input):
 		aux = re.sub( re.compile("^",re.MULTILINE), "\t", input)
 	return aux
 
-class Element:
+class Element(object):
 	"""Base class for the elements of the Line."""
 
-class NoParsed(Element):
-	"""Base class for all the elements of the Paragraphs that are not suited 
-	for parsing."""
-	def parseHyperlinks(self):
-		return [self]
-	def parseImages(self):
-		return [self]
-	def parseStrongtext(self):
-		return [self]
-	def parseEmphasized(self):
-		return [self]
+class SimpleElement(Element):
+	def __init__(self, text): self.text = text
+	def __str__(self): return self.text
+	def toHTML(self): return self.text
 
-class Hyperlink(NoParsed):
-	"""Hyperlink.
+class SimpleText(SimpleElement):
+	def __str__(self): return self.text 
+	def toHTML(self): return self.__str__() 
+	def toMarkdown(self): return self.__str__() 
+	def toXML(self): return self.__str__() 
+	def toDokuWiki(self): return self.__str__() 
+	def toWikipedia(self): return self.__str__() 
+	def toArticle(self): return self.__str__() 
+	def toLatex(self): return self.__str__() 
+	def toLatex(self): return self.__str__()
+
+class Hyperlink(SimpleElement):
+	"""Hyperlink. 
 		title + url """
 	def __init__(self,url,title):
 		self.url = url
-		self.title = title
+		self.title  = title
+	def __init__(self, text):
+		pos=text.find(' ')
+		self.url=text[:pos]
+		self.title=text[pos+1:]
 
-	def toString(self):
-		return "[[%s %s]]" % (self.url,self.title)
-
-	def toHTML(self):
-		return "<a href=\"%s\">%s</a>" % (self.url,self.title)
-
-	def toMarkdown(self):
-		return "[%s](%s)" % (self.title, self.url)
-
-	def toXML(self):
-		return self.toHTML()
-
-	def toDokuWiki(self):
-		return self.toString()
-
-	def toWikipedia(self):
-		return "[%s %s]" % (self.url,self.title)
-
-	def toArticle(self):
-		return "<ulink url=\"%s\"><citetitle>%s</citetitle></ulink>" % (self.url,self.title)
-
-	def toLatex(self):
-		return self.title+"\\footnote{"+self.url+"}"
+	def __str__(self): return "[[%s %s]]" % (self.url,self.title) 
+	def toHTML(self): return "<a href=\"%s\">%s</a>" % (self.url,self.title) 
+	def toMarkdown(self): return "[%s](%s)" % (self.title, self.url) 
+	def toXML(self): return self.toHTML() 
+	def toDokuWiki(self): return self.__str__() 
+	def toWikipedia(self): return "[%s %s]" % (self.url,self.title) 
+	def toArticle(self): return "<ulink url=\"%s\"><citetitle>%s</citetitle></ulink>" % (self.url,self.title) 
+	def toLatex(self): return self.title+"\\footnote{"+self.url+"}"
 		
-class Strongtext(NoParsed):
-	"""Strongtext.
-		text """
-	def __init__(self,text):
-		self.text = text
+class ComplexElement(Element):
+	def __init__(self, text):
+		self.elements = self.parse(text)
 
-	def toString(self):
-		return "'''%s'''" % (self.text)
+	def parse(self, text):
+		ret=Elements()
+		pos={}
+		searching=True
+		while searching:
+			sortkeys = marks.keys()
+			sortkeys.sort()
 
-	def toHTML(self):
-		return "<strong>%s</strong>" % (self.text)
+			for id in sortkeys:
+				pos[id] = text.find(marks[id][0])
 
-	def toMarkdown(self):
-		return  "**%s**" % (self.text)
+			minpos=-1
+			idmark=None
+			for k,v in pos.items():
+				if v != -1:
+					if minpos == -1 or v < minpos:
+						minpos = v
+						idmark=k
+			if minpos == -1:
+				ret.append(SimpleText(text))
+				searching = False
+			else:
+				ret.append(SimpleText(text[:minpos]))
+				text=text[minpos+len(marks[idmark][0]):]
+				endpos=text.find(marks[idmark][1])
+				typemark = marks[idmark][2]
+				if typemark == 'StrongEmphasis':
+					ret.append(StrongEmphasis(text[:endpos]))
+				if typemark == 'Strong':
+					ret.append(Strong(text[:endpos]))
+				if typemark == 'Emphasis':
+					ret.append(Emphasis(text[:endpos]))
+				if typemark == 'Hyperlink':
+					ret.append(Hyperlink(text[:endpos]))
+				if typemark == 'Image':
+					ret.append(ImageFactory.createImage(text[:endpos]))
 
-	def toXML(self):
-		return self.toHTML()
+				text=text[endpos+len(marks[idmark][1]):]
+		return ret
 
-	def toDokuWiki(self):
-		return  "**%s**" % (self.text)
+	def __str__(self): return self.elements.__str__(); 
+	def toHTML(self): return self.elements.toHTML();
+	def toMarkdown(self): return self.elements.toMarkdown();
+	def toXML(self): return self.elements.toXML();
+	def toDokuWiki(self): return self.elements.toDokuWiki();
+	def toWikipedia(self): return self.elements.toWikipedia();
+	def toArticle(self): return self.elements.toArticle();
+	def toLatex(self): return self.elements.toLatex();
 
-	def toWikipedia(self):
-		return "'''%s'''" % (self.text)
-
-	def toArticle(self):
-		return "<emphasis>%s</emphasis>" % (self.text)
-
+class Emphasis(ComplexElement):
+	def toHTML(self): return "<em>%s</em>" % (super(Emphasis, self).toHTML()) 
+	def toMarkdown(self): return  "*%s*" % (super(Emphasis, self).toMarkdown()) 
+	def toXML(self): return self.toHTML() 
+	def toDokuWiki(self): return  "//%s//" % (super(Emphasis, self).toDokuWiki()) 
+	def toWikipedia(self): return "''%s''" % (super(Emphasis, self).toWikipedia()) 
+	def toArticle(self): return "<emphasis>%s</emphasis>" % (super(Emphasis, self).toArticle()) 
 	def toLatex(self):
 		#TODO
-		return self.text
+		return super(Emphasis, self).toLatex()
 
-class Emphasized(NoParsed):
-	"""Emphasized.
-		text """
-	def __init__(self,text):
-		self.text = text
-
-	def toString(self):
-		return "''%s''" % (self.text)
-
-	def toHTML(self):
-		return "<em>%s</em>" % (self.text)
-
-	def toMarkdown(self):
-		return  "*%s*" % (self.text)
-
-	def toXML(self):
-		return self.toHTML()
-
-	def toDokuWiki(self):
-		return  "%s" % (self.text)
-
-	def toWikipedia(self):
-		return "''%s''" % (self.text)
-
-	def toArticle(self):
-		return "<emphasis>%s</emphasis>" % (self.text)
-
+class Strong(ComplexElement):
+	def __str__(self): return "'''%s'''" % (super(Strong, self).__str__()) 
+	def toHTML(self): return "<strong>%s</strong>" % (super(Strong, self).toHTML()) 
+	def toMarkdown(self): return  "**%s**" % (super(Strong, self).toMarkdown()) 
+	def toXML(self): return self.toHTML() 
+	def toDokuWiki(self): return  "**%s**" % (super(Strong, self).toDokuWiki()) 
+	def toWikipedia(self): return "'''%s'''" % (super(Strong, self).toWikipedia()) 
+	def toArticle(self): return "<emphasis>%s</emphasis>" % (super(Strong, self).toArticle()) 
 	def toLatex(self):
 		#TODO
-		return self.text
+		return super(Strong, self).toLatex() 
 
-class Image(NoParsed):
-	def __init__(self,url):
-		self.url = url
+class StrongEmphasis(ComplexElement):
+	def __str__(self): return "'''''%s'''''" % (super(StrongEmphasis, self).__str__()) 
+	def toHTML(self): return "<em><strong>%s</strong></em>" % (super(StrongEmphasis, self).toHTML()) 
+	def toMarkdown(self): return  "**_%s*_*" % (super(StrongEmphasis, self).toMarkdown()) 
+	def toXML(self): return self.toHTML() 
+	def toDokuWiki(self): return  "**//%s//**" % (super(StrongEmphasis, self).toDokuWiki()) 
+	def toWikipedia(self): return "'''''%s'''''" % (super(StrongEmphasis, self).toWikipedia()) 
+	def toArticle(self): return "<emphasis>%s</emphasis>" % (super(StrongEmphasis, self).toArticle()) 
+	def toLatex(self):
+		#TODO
+		return super(StrongEmphasis, self).toLatex() 
 
-	def toString(self):
-		return "{{%s}}" % (self.url)
-
-	def toHTML(self):
-		return "<img src=\"%s\" />" % (self.url)
-
-	def toMarkdown(self):
-		return "![Alternative text](%s)" % (self.url)
-
-	def toXML(self):
-		return "<image url=\"%s\" />" % (self.url)
-
-	def toDokuWiki(self):
-		return self.toString()
-
-	def toWikipedia(self):
-		return "[file:%s]" % (self.url)
-
-	def toArticle(self):
-		return "<mediaobject><imageobject><imagedata fileref=\"%s\"/></imageobject></mediaobject>" % (self.url)
+class ImageFactory(ComplexElement):
+    @staticmethod
+    def createImage(parameters):
+        p=parameters.split('|')
+        if len(p) == 1:
+            return Image(p[0])
+        if len(p) == 2:
+            return ImageTitled(p[0], p[1])
+        if len(p) == 3:
+            return ImageBig(p[0], p[1], p[2])
+        
+class Image(ComplexElement):
+	def __init__(self,url): self.url = url 
+	def __str__(self): return "{{%s}}" % (self.url) 
+	def toHTML(self): return "<img src=\"%s\" />" % (self.url) 
+	def toMarkdown(self): return "![Alternative text](%s)" % (self.url) 
+	def toXML(self): return "<image url=\"%s\" />" % (self.url) 
+	def toDokuWiki(self): return self.__str__() 
+	def toWikipedia(self): return "[file:%s]" % (self.url) 
+	def toArticle(self): return "<mediaobject><imageobject><imagedata fileref=\"%s\"/></imageobject></mediaobject>" % (self.url)
 
 	def toLatex(self):
 		# TODO: ir the url is actualy an url then change includegraphics with
@@ -168,8 +192,7 @@ class ImageTitled(Image):
 		self.url = url
 		self.title = title
 
-	def toString(self):
-		return "{{%s|%s}}" % (self.url, self.title)
+	def __str__(self): return "{{%s|%s}}" % (self.url, self.title)
 
 	def toHTML(self):
 		if global_options['with_image_title']:
@@ -181,18 +204,10 @@ class ImageTitled(Image):
 			return "<img src=\"%s\" alt=\"%s\" title=\"%s\"/>" % (self.url, 
 																self.title, 
 																self.title)
-	def toMarkdown(self):
-		return "![%s](%s)" % (self.title, self.url)
-
-	def toXML(self):
-		return "<image url=\"%s\" title=\"%s\"/>" % (self.url,
-															self.title )
-	def toWikipedia(self):
-		return "[file:%s %s]" % (self.url, self.title)
-
-	def toArticle(self):
-		return "<mediaobject><imageobject><imagedata fileref=\"%s\"/></imageobject> <textobject> <phrase>%s</phrase> </textobject></mediaobject>" % (self.url, self.title)
-	
+	def toMarkdown(self): return "![%s](%s)" % (self.title, self.url) 
+	def toXML(self): return "<image url=\"%s\" title=\"%s\"/>" % (self.url, self.title )
+	def toWikipedia(self): return "[file:%s %s]" % (self.url, self.title) 
+	def toArticle(self): return "<mediaobject><imageobject><imagedata fileref=\"%s\"/></imageobject> <textobject> <phrase>%s</phrase> </textobject></mediaobject>" % (self.url, self.title) 
 	def toLatex(self):
 		return '''\\begin{figure}[ht!]
 		\\centering
@@ -208,8 +223,7 @@ class ImageBig(ImageTitled):
 		self.title = title
 		self.urlBig = urlBig
 
-	def toString(self):
-		return "{{%s|%s|%s}}" % (self.url, self.title, self.urlBig)
+	def __str__(self): return "{{%s|%s|%s}}" % (self.url, self.title, self.urlBig)
 
 	def toHTML(self):
 
@@ -227,17 +241,9 @@ class ImageBig(ImageTitled):
 		else:
 			return """<a href="%s"><img src="%s" alt="%s" title="%s"/></a>""" % (self.urlBig, self.url, self.title, self.title )
 
-	def toMarkdown(self):
-		#FIXME: it doesn't use the urlBig
-		return "![%s](%s)" % (self.title, self.url)
-
-	def toXML(self):
-		return "<image url=\"%s\" title=\"%s\" urlbig=\"%s\"/>" % (self.url,
-													self.title,
-													self.urlBig )
-	def toArticle(self):
-		return "<mediaobject><imageobject><imagedata fileref=\"%s\"/></imageobject> <textobject> <phrase>%s</phrase> </textobject></mediaobject>" % (self.urlBig, self.title)
-
+	def toMarkdown(self): return "![%s](%s)" % (self.title, self.url) #FIXME: it doesn't use the urlBig 
+	def toXML(self): return "<image url=\"%s\" title=\"%s\" urlbig=\"%s\"/>" % (self.url, self.title, self.urlBig )
+	def toArticle(self): return "<mediaobject><imageobject><imagedata fileref=\"%s\"/></imageobject> <textobject> <phrase>%s</phrase> </textobject></mediaobject>" % (self.urlBig, self.title) 
 	def toLatex(self):
 		return '''\\begin{figure}[ht!]
 		\\centering
@@ -247,99 +253,9 @@ class ImageBig(ImageTitled):
 		\\end{figure}
 		'''
 
-class PlainText(Element):
-	"""PlainText"""
-	def __init__(self,text):
-		self.text = text
-	def toString(self):
-		return self.text
-
-	def toHTML(self):
-		return self.toString()
-
-	def toMarkdown(self):
-		return self.toString()
-
-	def toXML(self):
-		return self.toString()
-
-	def toDokuWiki(self):
-		return self.toString()
-
-	def toWikipedia(self):
-		return self.toString()
-
-	def toArticle(self):
-		return self.toString()
-
-	def toLatex(self):
-		return self.toString()
-
-	def parseHyperlinks(self):
-		texts = re.split("\[\[|\]\]",self.text)
-		counter = 0
-		elements = []
-		for text in texts:
-			if counter % 2 == 0:
-				elements.append( PlainText(text) )
-			else:
-				url,title = re.split(" *[\| ] *",text,1)
-				elements.append( Hyperlink(url,title) )
-			counter+=1
-		return elements
-
-	def parseStrongtext(self):
-		texts = re.split("'''",self.text)
-		counter = 0
-		elements = []
-		for text in texts:
-			if counter % 2 == 0:
-				elements.append( PlainText(text) )
-			else:
-				elements.append( Strongtext(text) )
-			counter+=1
-		return elements
-
-	def parseEmphasized(self):
-		texts = re.split("''",self.text)
-		counter = 0
-		elements = []
-		for text in texts:
-			if counter % 2 == 0:
-				elements.append( PlainText(text) )
-			else:
-				elements.append( Emphasized(text) )
-			counter+=1
-		return elements
-
-	def parseImages(self):
-		texts = re.split("\{\{|\}\}",self.text)
-		counter = 0
-		elements = []
-		for text in texts:
-			if counter % 2 == 0:
-				elements.append( PlainText(text) )
-			else:
-				parameters = re.split(" *\| *",text)
-				
-				image = None
-				if len(parameters) == 3:
-					image = ImageBig( *parameters )
-				elif len(parameters) == 2:
-					image = ImageTitled( *parameters)
-				else:
-					image = Image( *parameters )
-
-				elements.append( image )
-			counter+=1
-		return elements
-
-	def toLatex(self):
-		return self.toString()
-
 class Elements(list):
 	"""Elements in a line.
-	*PlainText
+	*Plain
 	*Hyperlink"""
 
 	def __init__(self, elements=None ):
@@ -347,10 +263,10 @@ class Elements(list):
 			elements = []
 		self = elements
 
-	def toString(self):
+	def __str__(self):
 		txt = ""
 		for element in self:
-			txt += element.toString()
+			txt += element.__str__()
 		return txt
 
 	def toHTML(self):
@@ -395,199 +311,120 @@ class Elements(list):
 			txt += element.toLatex()
 		return txt
 
-class Line:
+class Plain(ComplexElement):
+	"""Plain"""
+	def __init__(self,text): self.text = text
+	def __str__(self): return self.text 
+	def toHTML(self): return self.__str__() 
+	def toMarkdown(self): return self.__str__() 
+	def toXML(self): return self.__str__() 
+	def toDokuWiki(self): return self.__str__() 
+	def toWikipedia(self): return self.__str__() 
+	def toArticle(self): return self.__str__() 
+	def toLatex(self): return self.__str__() 
+	def toLatex(self): return self.__str__()
+
+class Line(ComplexElement):
 	""" A line is an base class formed by one or more elements."""
-
-	def __init__(self, elements=None ):
-		if elements is None:
-			elements = Elements()
-		self.elements = elements
-
-	def __init__(self, text="" ):
+	def __init__(self, text):
+		self.text = text
 		self.elements = Elements()
-		self.parse(text)
 
-	def parse(self,txt):
-		# Strongtext
-		parsed = PlainText(txt).parseStrongtext()
-		# Emphasidedtext
-		aux=[]
-		for element in parsed:
-			aux.extend( element.parseEmphasized() )
-		parsed=aux
-		# Hyperlink
-		aux=[]
-		for element in parsed:
-			aux.extend( element.parseHyperlinks() )
-		parsed=aux
-		# Images
-		aux=[]
-		for element in parsed:
-			aux.extend( element.parseImages() )
-		parsed=aux
-		#
-		self.elements.extend( parsed )
+	def createElements(self):
+		self.elements = super(Line, self).parse(self.text)
 
-	def toString(self):
-		return self.elements.toString()
-		
-	def toHTML(self):
-		return self.elements.toHTML()
-
-	def toMarkdown(self):
-		return self.elements.toMarkdown()
-
-	def toXML(self):
-		return self.elements.toXML()
-
-	def toDokuWiki(self):
-		return self.elements.toDokuWiki()
-
-	def toWikipedia(self):
-		return self.elements.toWikipedia()
-
-	def toArticle(self):
-		return self.elements.toArticle()
-
-	def toLatex(self):
-		return self.elements.toLatex()
+	def __str__(self): return self.elements.__str__() 
+	def toHTML(self): return self.elements.toHTML() 
+	def toMarkdown(self): return self.elements.toMarkdown() 
+	def toXML(self): return self.elements.toXML() 
+	def toDokuWiki(self): return self.elements.toDokuWiki() 
+	def toWikipedia(self): return self.elements.toWikipedia() 
+	def toArticle(self): return self.elements.toArticle() 
+	def toLatex(self): return self.elements.toLatex()
 
 class Headline(Line):
 	"""Line with the title of the section."""
 
 class Paragraph(Line):
 	"""Line suitable for paragraphs."""
-	def toString(self):
-		return self.elements.toString() + "\n"
-		
-	def toHTML(self):
-		return "\t<p>"+self.elements.toHTML()+"</p>\n"
 
-	def toMarkdown(self):
-		return self.elements.toMarkdown() + "\n"
-
-	def toXML(self):
-		return "<p>"+self.elements.toXML()+"</p>"
-
-	def toDokuWiki(self):
-		return self.elements.toDokuWiki() + "\n"
-
-	def toWikipedia(self):
-		return self.elements.toWikipedia() + "\n"
-
-	def toArticle(self):
-		return "<section>"+self.elements.toArticle()+"</section>"
-
-	def toLatex(self):
-		return self.elements.toLatex() + "\n\n"
+	def __str__(self): return self.elements.__str__() + "\n" 
+	def toHTML(self): return "\t<p>"+self.elements.toHTML()+"</p>\n" 
+	def toMarkdown(self): return self.elements.toMarkdown() + "\n" 
+	def toXML(self): return "<p>"+self.elements.toXML()+"</p>" 
+	def toDokuWiki(self): return self.elements.toDokuWiki() + "\n" 
+	def toWikipedia(self): return self.elements.toWikipedia() + "\n" 
+	def toArticle(self): return "<section>"+self.elements.toArticle()+"</section>" 
+	def toLatex(self): return self.elements.toLatex() + "\n\n"
 
 	@staticmethod
-	def openNestingTagHTML():
-		return ""
+	def openNestingTagHTML(): return ""
 
 	@staticmethod
-	def closeNestingTagHTML():
-		return ""
+	def closeNestingTagHTML(): return ""
 
 	@staticmethod
-	def openNestingLatex():
-		return ""
+	def openNestingLatex(): return ""
 
 	@staticmethod
-	def closeNestingLatex():
-		return ""
+	def closeNestingLatex(): return ""
 
 	@staticmethod
-	def openNestingTagArticle():
-		return ""
+	def openNestingTagArticle(): return ""
 
 	@staticmethod
-	def closeNestingTagArticle():
-		return ""
+	def closeNestingTagArticle(): return ""
 
 	@staticmethod
-	def type():
-		return "p"
+	def type(): return "p"
 
 	@staticmethod
-	def wikipediaReturn():
-		return "\n\n"
+	def wikipediaReturn(): return "\n\n"
 
 class NestedLine(Line):
 	"""Abstract Line for lines that must be enclosed between tags."""
 
 	@staticmethod
-	def wikipediaReturn():
-		return "\n"
+	def wikipediaReturn(): return "\n"
 
 class ListElement(NestedLine):
 	"""Line suitable for list elements."""
-	def toString(self):
-		return "-" + self.elements.toString()
-		
-	def toHTML(self):
-		return "\t\t<li>"+self.elements.toHTML()+"</li>\n"
-
-	def toMarkdown(self):
-		# FIXME: it also works for unordered lists
-		return "* "+ self.elements.toMarkdown()
-
-	def toXML(self):
-		return "<li>"+self.elements.toXML()+"</li>"
-
-	def toDokuWiki(self):
-		return "* " + self.elements.toDokuWiki()
-
-	def toWikipedia(self):
-		return "* " + "INI" + self.elements.toWikipedia() + "FIN"
-
-	def toArticle(self):
-		return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>"
-
-	def toLatex(self):
-		return "\item "+self.elements.toLatex()+"\n"
+	def __str__(self): return "-" + self.elements.__str__() 
+	def toHTML(self): return "\t\t<li>"+self.elements.toHTML()+"</li>\n" 
+	def toMarkdown(self): return "* "+ self.elements.toMarkdown() # FIXME: it also works for unordered lists 
+	def toXML(self): return "<li>"+self.elements.toXML()+"</li>" 
+	def toDokuWiki(self): return "* " + self.elements.toDokuWiki() 
+	def toWikipedia(self): return "* " + "INI" + self.elements.toWikipedia() + "FIN" 
+	def toArticle(self): return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>" 
+	def toLatex(self): return "\item "+self.elements.toLatex()+"\n"
 
 	@staticmethod
-	def openNestingTagHTML():
-		return "\t\t<ul>\n"
+	def openNestingTagHTML(): return "\t\t<ul>\n"
 
 	@staticmethod
-	def closeNestingTagHTML():
-		return "\t\t</ul>\n"
+	def closeNestingTagHTML(): return "\t\t</ul>\n"
 
 	@staticmethod
-	def openNestingLatex():
-		return "\\begin{itemize}\n"
+	def openNestingLatex(): return "\\begin{itemize}\n"
 
 	@staticmethod
-	def closeNestingLatex():
-		return "\\end{itemize}\n"
+	def closeNestingLatex(): return "\\end{itemize}\n"
 
 	@staticmethod
-	def openNestingTagArticle():
-		return "<itemizedlist>"
+	def openNestingTagArticle(): return "<itemizedlist>"
 
 	@staticmethod
-	def closeNestingTagArticle():
-		return "</itemizedlist>"
+	def closeNestingTagArticle(): return "</itemizedlist>"
 
 	@staticmethod
-	def type():
-		return "ul"
+	def type(): return "ul"
 
 class ListElementNumeric(ListElement):
 	"""Line suitable for numeric list elements."""
-	def toString(self):
-		return "#" + self.elements.toString()
-		
-	def toDokuWiki(self):
-		return "-" + self.elements.toString()
-
-	def toWikipedia(self):
-		return self.toString()
-
-	def toArticle(self):
-		return "<listitem><para>"+self.elements.toArticle()+"</para></list>"
+	def __str__(self): return "#" + self.elements.__str__() 
+	def toDokuWiki(self): return "-" + self.elements.__str__() 
+	def toWikipedia(self): return self.__str__() 
+	def toArticle(self): return "<listitem><para>"+self.elements.toArticle()+"</para></list>"
 
 	@staticmethod
 	def openNestingTagHTML():
@@ -619,30 +456,14 @@ class ListElementNumeric(ListElement):
 
 class ListElementDefinitionTerm(NestedLine):
 	"""Line suitable for list elements."""
-	def toString(self):
-		return "-" + self.elements.toString()
-		
-	def toHTML(self):
-		return "\t\t<dt>"+self.elements.toHTML()+"</dt>\n"
-
-	def toMarkdown(self):
-		#FIXME
-		return "* "+self.elements.toMarkdown()+"\n"
-
-	def toXML(self):
-		return "<dt>"+self.elements.toXML()+"</dt>"
-
-	def toDokuWiki(self):
-		return "* " + self.elements.toDokuWiki() #TODO: test
-
-	def toWikipedia(self):
-		return "; " + self.elements.toWikipedia()
-
-	def toArticle(self):
-		return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>" #TODO: test
-
-	def toLatex(self):
-		return "\\item["+self.elements.toLatex()+"]\n"
+	def __str__(self): return "-" + self.elements.__str__() 
+	def toHTML(self): return "\t\t<dt>"+self.elements.toHTML()+"</dt>\n" 
+	def toMarkdown(self): return "* "+self.elements.toMarkdown()+"\n" #FIXME 
+	def toXML(self): return "<dt>"+self.elements.toXML()+"</dt>" 
+	def toDokuWiki(self): return "* " + self.elements.toDokuWiki() #TODO: test 
+	def toWikipedia(self): return "; " + self.elements.toWikipedia() 
+	def toArticle(self): return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>" #TODO: test 
+	def toLatex(self): return "\\item["+self.elements.toLatex()+"]\n"
 
 	@staticmethod
 	def openNestingTagHTML():
@@ -674,29 +495,14 @@ class ListElementDefinitionTerm(NestedLine):
 
 class ListElementDefinitionDefinition(NestedLine):
 	"""Line suitable for list elements."""
-	def toString(self):
-		return "::" + self.elements.toString()
-		
-	def toHTML(self):
-		return "\t\t<dd>"+self.elements.toHTML()+"</dd>\n"
-
-	def toMarkdown(self):
-		return "   "+self.elements.toMarkdown()+"\n"
-
-	def toXML(self):
-		return "<dd>"+self.elements.toXML()+"</dd>"
-
-	def toDokuWiki(self):
-		return "* " + self.elements.toDokuWiki() #TODO: test
-
-	def toWikipedia(self):
-		return ": " + self.elements.toWikipedia()
-
-	def toArticle(self):
-		return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>" #TODO: test
-
-	def toLatex(self):
-		return self.elements.toLatex()+"\n"
+	def __str__(self): return "::" + self.elements.__str__() 
+	def toHTML(self): return "\t\t<dd>"+self.elements.toHTML()+"</dd>\n" 
+	def toMarkdown(self): return "   "+self.elements.toMarkdown()+"\n" 
+	def toXML(self): return "<dd>"+self.elements.toXML()+"</dd>" 
+	def toDokuWiki(self): return "* " + self.elements.toDokuWiki() #TODO: test 
+	def toWikipedia(self): return ": " + self.elements.toWikipedia() 
+	def toArticle(self): return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>" #TODO: test 
+	def toLatex(self): return self.elements.toLatex()+"\n" 
 
 	@staticmethod
 	def openNestingTagHTML():
@@ -728,57 +534,35 @@ class ListElementDefinitionDefinition(NestedLine):
 
 class LiteralLine(NestedLine):
 	"""Line suitable for literals."""
-	def toString(self):
-		return ">" + self.elements.toString()
-		
-	def toHTML(self):
-		return self.elements.toHTML()+"\n"
-
-	def toMarkdown(self):
-		return "```\n"+ self.elements.toMarkdown()+"\n```\n"
-
-	def toXML(self):
-		return "<pre>"+self.elements.toHTML()+"</pre>"
-
-	def toDokuWiki(self):
-		return " " + self.toString()
-
-	def toWikipedia(self):
-		return ">" + self.toString()
-
-	def toArticle(self):
-		return self.elements.toArticle()
-
-	def toLatex(self):
-		return self.toString()[1:]+"\n"
+	def __str__(self): return ">" + self.elements.__str__() 
+	def toHTML(self): return self.elements.toHTML()+"\n" 
+	def toMarkdown(self): return "```\n"+ self.elements.toMarkdown()+"\n```\n" 
+	def toXML(self): return "<pre>"+self.elements.toHTML()+"</pre>" 
+	def toDokuWiki(self): return " " + self.__str__() 
+	def toWikipedia(self): return ">" + self.__str__() 
+	def toArticle(self): return self.elements.toArticle() 
+	def toLatex(self): return self.__str__()[1:]+"\n" 
 
 	@staticmethod
-	def openNestingTagHTML():
-		return "\t\t<pre>"
+	def openNestingTagHTML(): return "\t\t<pre>"
 
 	@staticmethod
-	def closeNestingTagHTML():
-		return "</pre>\n"
+	def closeNestingTagHTML(): return "</pre>\n"
 
 	@staticmethod
-	def openNestingLatex():
-		return "\\begin{verbatim}\n"
+	def openNestingLatex(): return "\\begin{verbatim}\n"
 
 	@staticmethod
-	def closeNestingLatex():
-		return "\\end{verbatim}\n"
+	def closeNestingLatex(): return "\\end{verbatim}\n"
 
 	@staticmethod
-	def openNestingTagArticle():
-		return "\t\t<programlisting>i\n<![CDATA[\n"
+	def openNestingTagArticle(): return "\t\t<programlisting>i\n<![CDATA[\n"
 
 	@staticmethod
-	def closeNestingTagArticle():
-		return "\n]]>\n\t\t</programlisting>\n"
+	def closeNestingTagArticle(): return "\n]]>\n\t\t</programlisting>\n"
 
 	@staticmethod
-	def type():
-		return "pre"
+	def type(): return "pre"
 
 class LineFactory:
 	@staticmethod
@@ -807,6 +591,7 @@ class Section:
 	"""The top class or this application."""
 
 	def __init__(self, title="No title", paragraphs=None, subsections=None):
+		#import pdb; pdb.set_trace()
 		self.title = title  
 		if paragraphs is None:
 			paragraphs = []
@@ -821,18 +606,18 @@ class Section:
 
 		self.lastParagraph=None
 
-	def toString(self):
+	def __str__(self):
 		content=""
 		p=[]
 		for i in self.paragraphs:
-			p.append(i.toString())
+			p.append(i.__str__())
 
 		s=[]
 		for i in self.subsections:
-			s.append(i.toString())
+			s.append(i.__str__())
 
 		aux = "* " \
-				+ self.title.toString() \
+				+ self.title.__str__() \
 				+ "\n" \
 				+ tabulate( "\n".join(p) + "\n".join(s) )
 
@@ -1028,7 +813,7 @@ class Section:
 		else:
 			section_name="part"
 
-		aux += "\\"+section_name+"{"+self.title.toString() +"}\n"
+		aux += "\\"+section_name+"{"+self.title.__str__() +"}\n"
 		
 		if level == 1:
 			aux +=dedent("""
@@ -1086,7 +871,7 @@ class Section:
 		if len(self.subsections) > 0:
 			self.lastSubsection().addParagraph( line, depth + 1)
 		else:
-			if ( text == "" ):
+			if text == "":
 				self.lastParagraphOpen = False
 				self.lastParagraphSpecial = False
 			else:
@@ -1113,19 +898,12 @@ class Section:
 					if re.match("[>#-]",text):
 						self.lastParagraphSpecial = True
 				else:
-					text = "\n" + text
-					self.paragraphs[ len(self.paragraphs) - 1 ].parse(text)
-
-				#if len(self.paragraphs) > 0 and self.lastParagraphOpen:
-					#text = "\n" + text
-					#self.paragraphs[ len(self.paragraphs) - 1 ].parse(text)
-				#else:
-					#paragraph = LineFactory.createLine( text )
-					#self.paragraphs.append( paragraph )
+					self.paragraphs[ - 1 ].text = self.paragraphs[-1].text + "\n" + text
 
 				self.lastParagraphOpen = True
 
 	def parseLine(self, line=None):
+		#import pdb; pdb.set_trace()
 		line = line.rstrip('\n')
 		if re.match("^\t*\* ",line):
 			self.addTitle(line)
@@ -1135,9 +913,19 @@ class Section:
 	def parseText(self, text=None):
 		self.parseLines(text.split("\n"))
 		
+	def createElements(self):
+		'''Create elements from lines'''
+		self.title.createElements()
+		for paragraph in self.paragraphs:
+			paragraph.createElements()
+
+		for subsection in self.subsections:
+			subsection.createElements()
+
 	def parseLines(self, lines=None):
 		for line in lines:
 			self.parseLine( line )
+		self.createElements()
 		
 	def parseFile(self,filename):
 		f = open( filename, "r")
@@ -1148,7 +936,7 @@ class Section:
 
 	def filter(self,pattern):
 		aux = None
-		if re.search(pattern, self.title.toString() ) is not None:
+		if re.search(pattern, self.title.__str__() ) is not None:
 			return self
 		else:
 			for subsection in self.subsections:
@@ -1275,25 +1063,28 @@ def main():
 	if pattern != "":
 		sec = sec.filter( pattern )
 
-	if format == "sec":
-		print sec.toString()
-	elif format == "html":
-		print sec.toHTML()
-	elif format == "html_toc":
-		print "<div id=\"full_toc\">"+sec.toHTMLTOC()+"</div>"
-	elif format == "markdown":
-		print sec.toMarkdown()
-	elif format == "xml":
-		print sec.toXML()
-	elif format == "dokuwiki":
-		print sec.toDokuWiki()
-	elif format == "wikipedia":
-		print sec.toWikipedia()
-	elif format == "article":
-		print sec.toArticle()
-	elif format == "latex":
-		print sec.toLatex()
+	if format == "sec": print sec
+	elif format == "html": print sec.toHTML()
+	elif format == "html_toc": print "<div id=\"full_toc\">"+sec.toHTMLTOC()+"</div>"
+	elif format == "markdown": print sec.toMarkdown()
+	elif format == "xml": print sec.toXML()
+	elif format == "dokuwiki": print sec.toDokuWiki()
+	elif format == "wikipedia": print sec.toWikipedia()
+	elif format == "article": print sec.toArticle()
+	elif format == "latex": print sec.toLatex()
+
+def debug():
+	#k=ComplexElement("Elemental ''querido'' watson")
+	#k=ComplexElement("Elemental [[url querido]] watson")
+	#print k
+	print marks
+	print marks.keys()
+	k=marks.keys()
+	k.sort()
+	print k
+	
 
 if __name__ == "__main__":
 	main()
+	#debug()
 	

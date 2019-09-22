@@ -2,40 +2,52 @@
 	Sections converter
 	
 	* Usage
-		sectxt.py -h
+		> sectxt.py  -<format> [options] [file.sec]
+		> sectxt.py -h
 		
-		sectxt.py  -<format> [options] file
 	* Description
-		Read file.sec and outputs the file converted.
+		Reads standard input [or file.sec] parse it in sec format and outputs 
+		the content in the selected format.
+
+		For sec syntax read SYNTAX.SEC
 	* Formats
 		* -t, --txt
-			Convert file.sec to text format (normalized).
+			Converts file.sec to text format (normalized).
 		* -m, --html
-			Convert file.sec to htMl format.
+			Converts file.sec to html format.
 
-			html means the content of the body, only.
+			This html is not a full html page.
 		* -x, --xml
-			Convert file.sec to XML format.
+			Converts file.sec to XML format.
 		* -d, --dokuwiki
-			Convert file.sec to [[http://www.dokuwiki.org/syntax DokuWiki format]].
+			Converts file.sec to [[http://www.dokuwiki.org/syntax DokuWiki format]].
 		* -w, --wikipedia
-			Convert file.sec to [[http://en.wikipedia.org/wiki/Wikipedia:Cheatsheet Wikipedia format]].
+			Converts file.sec to [[http://en.wikipedia.org/wiki/Wikipedia:Cheatsheet Wikipedia format]].
 		* -a, --article
-			Convert file.sec to [[http://en.wikipedia.org/wiki/DocBook docbook]] article.
+			Converts file.sec to [[http://en.wikipedia.org/wiki/DocBook docbook]] article.
 		* -l, --latex
-			Convert file.sec to the content of a latex article.
+			Converts file.sec to the content of a latex article.
 		* -k, --markdown
-			Convert file.sec to [[https://en.wikipedia.org/wiki/Markdown Markdown format]].
+			Converts file.sec to [[https://en.wikipedia.org/wiki/Markdown Markdown format]].
+		* -o, --html_toc max_level
+			Converts file.sec in an html nested list of links to the titles 
+			of the sections of the document.
+
+			Nested until max_level is reached.
+
+			No limit if max_level is equal to 0.
 	* Options
 		* -f, --filter pattern
-			Only shows the section whith the title that match pattern.
+			Only shows the section with the title that match pattern.
 		* -h, --help
 			Show this help.
 		* -i, --toc
-			Only with outuput of html type.
-
 			Include a table of contents of the subsections between the title 
 			and the texts.
+
+			Only works with selected type is html.
 		* -n, --no_extra_divs
 			Do not include extra divs for paragraphs, tocs, etc.
+		* --with-image-title
+			Only in --html. Show the title of the images.
 	
