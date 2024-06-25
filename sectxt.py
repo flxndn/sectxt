@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
 import re, sys, getopt
@@ -16,7 +16,7 @@ marks={
 global global_options 
 
 def notImplemented():
-	print "Not implemented yet."
+	print("Not implemented yet.")
 
 def tabulate(input):
 	aux=""
@@ -73,7 +73,7 @@ class ComplexElement(Element):
 		pos={}
 		searching=True
 		while searching:
-			sortkeys = marks.keys()
+			sortkeys = list(marks)
 			sortkeys.sort()
 
 			for id in sortkeys:
@@ -153,16 +153,16 @@ class StrongEmphasis(ComplexElement):
 		return super(StrongEmphasis, self).toLatex() 
 
 class ImageFactory(ComplexElement):
-    @staticmethod
-    def createImage(parameters):
-        p=parameters.split('|')
-        if len(p) == 1:
-            return Image(p[0])
-        if len(p) == 2:
-            return ImageTitled(p[0], p[1])
-        if len(p) == 3:
-            return ImageBig(p[0], p[1], p[2])
-        
+	@staticmethod
+	def createImage(parameters):
+		p=parameters.split('|')
+		if len(p) == 1:
+			return Image(p[0])
+		if len(p) == 2:
+			return ImageTitled(p[0], p[1])
+		if len(p) == 3:
+			return ImageBig(p[0], p[1], p[2])
+		
 class Image(ComplexElement):
 	def __init__(self,url): self.url = url 
 	def __str__(self): return "{{%s}}" % (self.url) 
@@ -175,7 +175,7 @@ class Image(ComplexElement):
 
 	def toLatex(self):
 		# TODO: ir the url is actualy an url then change includegraphics with
-		#       \write18{wget http://www.some-site.com/path/to/image.png}
+		#	   \write18{wget http://www.some-site.com/path/to/image.png}
 		#		\includegraphics{image.png}
 
 		# TODO: less code for images
@@ -396,7 +396,7 @@ class ListElement(NestedLine):
 	def toDokuWiki(self): return "* " + self.elements.toDokuWiki() 
 	def toWikipedia(self): return "* " + "INI" + self.elements.toWikipedia() + "FIN" 
 	def toArticle(self): return "<listitem><para>"+self.elements.toArticle()+"</para></listitem>" 
-	def toLatex(self): return "\item "+self.elements.toLatex()+"\n"
+	def toLatex(self): return "\\item "+self.elements.toLatex()+"\n"
 
 	@staticmethod
 	def openNestingTagHTML(): return "\t\t<ul>\n"
@@ -567,7 +567,7 @@ class LiteralLine(NestedLine):
 class LineFactory:
 	@staticmethod
 	def createLine( text ):
-		text = re.sub("^\t*\* ", "", text )
+		text = re.sub('^\t*[*] ', "", text )
 		if   re.match(">", text):
 			return LiteralLine( text[1:]  )
 		elif re.match("-", text):
@@ -712,7 +712,7 @@ class Section:
 
 	def toDokuWiki(self, level = 5):
 		if level<0:
-			print "Error. Too many levels."
+			print("Error. Too many levels.")
 			sys.exit(2)
 		paragraphs=""
 		for i in self.paragraphs:
@@ -743,7 +743,7 @@ class Section:
 	
 	def toWikipedia(self, level = 1):
 		if level>5:
-			print "Error. Too many levels."
+			print("Error. Too many levels.")
 			sys.exit(2)
 		paragraphs=""
 		for i in self.paragraphs:
@@ -818,7 +818,7 @@ class Section:
 		if level == 1:
 			aux +=dedent("""
 				\\begin{document}
-				\maketitle
+				\\maketitle
 				\\tableofcontents
 				""").strip()+"\n"
 		paragraphs=""
@@ -839,7 +839,7 @@ class Section:
 
 		if level == 1:
 			aux+= "\\begin{abstract}\n" + paragraphs + "\\end{abstract}\n" + subsections
-			aux +="\end{document}"
+			aux +="\\end{document}"
 		else:
 			aux+= paragraphs + subsections
 
@@ -853,7 +853,7 @@ class Section:
 			return self.subsections[ count - 1 ]
 
 	def addTitle( self, line, depth = 0 ):
-		text = re.sub("^\t*\* ", "", line)
+		text = re.sub("^\t*[*] ", "", line)
 		title = Headline( text )
 		level = len(line) - len(text) - 2
 
@@ -863,7 +863,12 @@ class Section:
 			if level == depth + 1:
 				self.subsections.append( Section(title) )
 			else:
-				self.lastSubsection().addTitle(line, depth + 1 )
+				try:
+					self.lastSubsection().addTitle(line, depth + 1 )
+				except Exception as inst:
+					print(type(inst))
+					print(inst)
+					print(self)
 				
 	def addParagraph(self, line, depth=0):
 		text = re.sub("^\t*", "", line)
@@ -905,7 +910,7 @@ class Section:
 	def parseLine(self, line=None):
 		#import pdb; pdb.set_trace()
 		line = line.rstrip('\n')
-		if re.match("^\t*\* ",line):
+		if re.match("^\t*[*] ",line):
 			self.addTitle(line)
 		else:
 			self.addParagraph(line)
@@ -947,7 +952,7 @@ class Section:
 
 def usage():
 
-	print """* sectxt.py
+	print("""* sectxt.py
 	Sections converter
 	
 	* Usage
@@ -999,7 +1004,7 @@ def usage():
 			Do not include extra divs for paragraphs, tocs, etc.
 		* --with-image-title
 			Only in --html. Show the title of the images.
-	"""
+	""")
 
 def main():
 	global global_options
@@ -1007,9 +1012,9 @@ def main():
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "f:htkmxdwialno:", ["filter=", "help","txt","html","html_toc=", "markdown", "xml","dokuwiki","wikipedia","toc", "with-image-title", "article", "latex", "no_extra_divs"])
-	except getopt.GetoptError, err:
+	except getopt.GetoptError(err):
 		# print help information and exit:
-		print str(err) # will print something like "option -a not recognized"
+		print(str(err)) # will print something like "option -a not recognized"
 		usage()
 		sys.exit(2)
 
@@ -1063,25 +1068,25 @@ def main():
 	if pattern != "":
 		sec = sec.filter( pattern )
 
-	if format == "sec": print sec
-	elif format == "html": print sec.toHTML()
-	elif format == "html_toc": print "<div id=\"full_toc\">"+sec.toHTMLTOC()+"</div>"
-	elif format == "markdown": print sec.toMarkdown()
-	elif format == "xml": print sec.toXML()
-	elif format == "dokuwiki": print sec.toDokuWiki()
-	elif format == "wikipedia": print sec.toWikipedia()
-	elif format == "article": print sec.toArticle()
-	elif format == "latex": print sec.toLatex()
+	if format == "sec": print(sec)
+	elif format == "html": print(sec.toHTML())
+	elif format == "html_toc": print("<div id=\"full_toc\">"+sec.toHTMLTOC()+"</div>")
+	elif format == "markdown": print(sec.toMarkdown())
+	elif format == "xml": print(sec.toXML())
+	elif format == "dokuwiki": print(sec.toDokuWiki())
+	elif format == "wikipedia": print(sec.toWikipedia())
+	elif format == "article": print(sec.toArticle())
+	elif format == "latex": print(sec.toLatex())
 
 def debug():
 	#k=ComplexElement("Elemental ''querido'' watson")
 	#k=ComplexElement("Elemental [[url querido]] watson")
 	#print k
-	print marks
-	print marks.keys()
+	print(marks)
+	print(marks.keys())
 	k=marks.keys()
 	k.sort()
-	print k
+	print(k)
 	
 
 if __name__ == "__main__":
