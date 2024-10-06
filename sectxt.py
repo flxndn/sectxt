@@ -970,7 +970,7 @@ def usage():
 		* -m, --html
 			Converts file.sec to html format.
 
-			This html is not a full html page.
+			This html is not a full html page, it must be embedden into html/body section.
 		* -x, --xml
 			Converts file.sec to XML format.
 		* -d, --dokuwiki
